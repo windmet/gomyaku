@@ -8,7 +8,8 @@ GOMYAKU pin and then switch one primitive at a time.
 Required order:
 
 1. Make the pinned GOMYAKU artifact reachable to the Qianqingtie CI context.
-2. Install the exact `v0.1.0-alpha.1` artifact in a disposable clone.
+2. Install the exact tagged GOMYAKU artifact in a disposable clone and record
+   the resolved tag/commit.
 3. Switch schema, validator, capability, and People projection consumers one at
    a time, preserving the Qianqingtie adapters.
 4. Run all publication and browser gates after each switch.

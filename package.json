@@ -9,8 +9,16 @@
   },
   "scripts": {
     "test": "node scripts/verify-fixtures.mjs",
-    "validate": "npm test && npm exec -- tsc --noEmit",
+    "verify:package": "node scripts/verify-package-surface.mjs",
+    "validate": "npm test && npm run verify:package && npm exec -- tsc --noEmit",
     "compile": "node src/cli/gomyaku.mjs compile"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./compiler/project": "./src/compiler/compileProject.mjs",
+    "./projections/project-presentation": "./src/projections/projectPresentation.mjs",
+    "./validation/project-package": "./src/validation/projectPackage.mjs",
+    "./validation/source-set": "./src/validation/sourceSet.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.3"
