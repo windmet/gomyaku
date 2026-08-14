@@ -1,7 +1,7 @@
 {
   "name": "gomyaku",
   "private": true,
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Generic archive model, validation, projections, and deterministic compiler.",
   "type": "module",
   "engines": {
@@ -16,6 +16,8 @@
   "exports": {
     ".": "./src/index.mjs",
     "./compiler/project": "./src/compiler/compileProject.mjs",
+    "./model/project-schema": "./src/model/projectSchema.ts",
+    "./projections/project-people": "./src/projections/projectPeople.ts",
     "./projections/project-presentation": "./src/projections/projectPresentation.mjs",
     "./validation/project-package": "./src/validation/projectPackage.mjs",
     "./validation/source-set": "./src/validation/sourceSet.mjs"
