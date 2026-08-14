@@ -1,0 +1,18 @@
+{
+  "name": "gomyaku",
+  "private": true,
+  "version": "0.1.0-alpha.1",
+  "description": "Generic archive model, validation, projections, and deterministic compiler.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "test": "node scripts/verify-fixtures.mjs",
+    "validate": "npm test && npm exec -- tsc --noEmit",
+    "compile": "node src/cli/gomyaku.mjs compile"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

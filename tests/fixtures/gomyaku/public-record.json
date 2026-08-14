@@ -1,0 +1,51 @@
+{
+  "fixtureId": "public-record",
+  "project": {
+    "id": "fictional-public-record",
+    "views": ["overview", "people", "mentions"],
+    "defaultTrack": "record"
+  },
+  "tracks": [
+    { "id": "record", "data": { "order": 1, "durationMs": 1200000 } }
+  ],
+  "acts": [
+    { "id": "record-main", "data": { "track": "record" } }
+  ],
+  "events": [
+    { "id": "record-event", "data": { "track": "record", "publicationStatus": "public" } }
+  ],
+  "threads": [],
+  "people": [
+    {
+      "id": "fictional-person-a",
+      "data": {
+        "displayName": "Aster Vale",
+        "contextNames": ["Aster", "A. Vale"],
+        "appearances": ["record-event"],
+        "sources": ["source-public-01"]
+      }
+    },
+    {
+      "id": "fictional-person-b",
+      "data": {
+        "displayName": "Briar North",
+        "contextNames": ["Briar"],
+        "appearances": ["record-event"],
+        "sources": ["source-public-01"]
+      }
+    },
+    {
+      "id": "fictional-person-c",
+      "data": {
+        "displayName": "Cedar Lune",
+        "contextNames": ["Cedar"],
+        "appearances": ["record-event"],
+        "sources": ["source-public-02"]
+      }
+    }
+  ],
+  "sources": [
+    { "id": "source-public-01", "data": { "kind": "public-record" } },
+    { "id": "source-public-02", "data": { "kind": "public-record" } }
+  ]
+}

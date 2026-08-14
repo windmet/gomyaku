@@ -1,0 +1,30 @@
+{
+  "fixtureId": "multi-track",
+  "project": {
+    "id": "fictional-multi-track-record",
+    "views": ["overview", "sections", "timeline", "people"],
+    "defaultTrack": "studio"
+  },
+  "tracks": [
+    { "id": "studio", "data": { "order": 1, "durationMs": 1800000, "sourceLocalClock": "00:00:00" } },
+    { "id": "field", "data": { "order": 2, "durationMs": 900000, "sourceLocalClock": "01:15:00" } },
+    { "id": "call", "data": { "order": 3, "durationMs": 600000, "sourceLocalClock": "02:30:00" } }
+  ],
+  "acts": [
+    { "id": "studio-intro", "data": { "track": "studio" } },
+    { "id": "field-report", "data": { "track": "field" } },
+    { "id": "call-wrap", "data": { "track": "call" } }
+  ],
+  "events": [
+    { "id": "studio-event", "data": { "track": "studio", "publicationStatus": "public" } },
+    { "id": "field-event", "data": { "track": "field", "publicationStatus": "public" } },
+    { "id": "call-event", "data": { "track": "call", "publicationStatus": "public" } }
+  ],
+  "threads": [
+    { "id": "thread-echo", "data": { "track": "call", "event": "call-event" } }
+  ],
+  "people": [
+    { "id": "fictional-host", "data": { "presence": [{ "kind": "host" }] } },
+    { "id": "fictional-guest", "data": { "presence": [{ "kind": "live-call" }] } }
+  ]
+}
