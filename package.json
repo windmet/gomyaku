@@ -1,7 +1,7 @@
 {
   "name": "gomyaku",
   "private": true,
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.3",
   "description": "Generic archive model, validation, projections, and deterministic compiler.",
   "type": "module",
   "engines": {
