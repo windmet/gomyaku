@@ -70,6 +70,19 @@ partial receipts and stays `review.pending`; a separate local operation must
 apply the rows after checking the Project manifest. The command never edits
 `work-state.jsonl`.
 
+Generate the exact review hand-off from the pending proposal before filling the
+human fields:
+
+```text
+gomyaku catalog work-state-approval-template \
+  --plan work-state-update-plan.json \
+  --out work-state-approval.template.json
+```
+
+The template copies every proposed item in order and leaves reviewer, time and
+reason blank. It is not an approval and cannot be applied until those fields
+are completed.
+
 ## Reviewed apply step
 
 Writing the proposal back is a separate mutation and requires all of the

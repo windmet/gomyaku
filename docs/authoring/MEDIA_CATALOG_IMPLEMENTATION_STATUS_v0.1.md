@@ -76,6 +76,9 @@ is local-only.
 - CAT-26: an Acquisition Plan can generate an exact-coverage receipt template;
   execution metadata, result status, evidence and notes remain blank until
   real work is performed.
+- CAT-27: a pending Work State update proposal can generate an exact-item
+  approval template; review metadata stays blank and the apply gate remains
+  separately enforced.
 
 ## Deliberately not included yet
 

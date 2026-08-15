@@ -37,6 +37,7 @@
     "./catalog/acquire-receipt": "./src/catalog/acquire/acquisitionReceipt.mjs",
     "./catalog/work-state": "./src/catalog/workstate/workState.mjs",
     "./catalog/work-state-plan": "./src/catalog/workstate/workStateUpdatePlan.mjs",
+    "./catalog/work-state-approval-template": "./src/catalog/workstate/workStateApprovalTemplate.mjs",
     "./catalog/work-state-apply": "./src/catalog/workstate/applyWorkStateUpdatePlan.mjs",
     "./catalog/source-set": "./src/catalog/sourceset/sourceSetReview.mjs",
     "./catalog/source-set-approval": "./src/catalog/sourceset/approveSourceSet.mjs",

@@ -18,6 +18,7 @@ export { buildAcquisitionReceiptTemplate } from './catalog/acquire/acquisitionRe
 export { verifyAcquisitionReceipt } from './catalog/acquire/acquisitionReceipt.mjs';
 export { assertWorkState, validateWorkState, validateWorkStateRows } from './catalog/workstate/workState.mjs';
 export { buildWorkStateUpdatePlan } from './catalog/workstate/workStateUpdatePlan.mjs';
+export { buildWorkStateApprovalTemplate } from './catalog/workstate/workStateApprovalTemplate.mjs';
 export { applyWorkStateUpdatePlan } from './catalog/workstate/applyWorkStateUpdatePlan.mjs';
 export { buildSourceSetReviewPlan } from './catalog/sourceset/sourceSetReview.mjs';
 export { approveSourceSetReviewPlan } from './catalog/sourceset/approveSourceSet.mjs';

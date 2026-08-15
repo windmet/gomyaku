@@ -15,6 +15,7 @@ import { buildAcquisitionReceiptTemplate } from '../catalog/acquire/acquisitionR
 import { verifyAcquisitionReceipt } from '../catalog/acquire/acquisitionReceipt.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
 import { buildWorkStateUpdatePlan } from '../catalog/workstate/workStateUpdatePlan.mjs';
+import { buildWorkStateApprovalTemplate } from '../catalog/workstate/workStateApprovalTemplate.mjs';
 import { applyWorkStateUpdatePlan } from '../catalog/workstate/applyWorkStateUpdatePlan.mjs';
 import { buildSourceSetReviewPlan } from '../catalog/sourceset/sourceSetReview.mjs';
 import { approveSourceSetReviewPlan } from '../catalog/sourceset/approveSourceSet.mjs';
@@ -59,6 +60,7 @@ const usage = () => {
   console.log('  gomyaku catalog status --workspace <path>');
   console.log('  gomyaku catalog validate-work-state --workspace <path> [--evidence-root <workspace-root>] [--out <report.json>]');
   console.log('  gomyaku catalog work-state-plan --acquisition-plan <plan.json> --receipt <receipt.json> --evidence-root <workspace-root> [--out <proposal.json>]');
+  console.log('  gomyaku catalog work-state-approval-template --plan <work-state-update-plan.json> [--out <approval-template.json>]');
   console.log('  gomyaku catalog apply-work-state-plan --workspace <path> --plan <proposal.json> --approval <approval.json> --evidence-root <workspace-root> --backup <backup.jsonl> --apply-reviewed [--out <report.json>]');
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
@@ -294,6 +296,15 @@ const catalogCommand = async () => {
       workState: paths.workState,
     };
     const output = `${JSON.stringify(report, null, 2)}\n`;
+    if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+    else process.stdout.write(output);
+    return;
+  }
+  if (subcommand === 'work-state-approval-template') {
+    const selectedPlanPath = requireValue(readFlag('--plan'), '--plan');
+    const plan = JSON.parse(await readFile(path.resolve(selectedPlanPath), 'utf8'));
+    const template = buildWorkStateApprovalTemplate({ plan });
+    const output = `${JSON.stringify(template, null, 2)}\n`;
     if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
     else process.stdout.write(output);
     return;

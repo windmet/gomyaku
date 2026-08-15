@@ -23,6 +23,7 @@ import {
   buildAcquisitionReceiptTemplate,
   verifyAcquisitionReceipt,
   buildWorkStateUpdatePlan,
+  buildWorkStateApprovalTemplate,
   applyWorkStateUpdatePlan,
   validateWorkState,
   validateWorkStateRows,
@@ -553,6 +554,28 @@ if (workStateUpdatePlan.kind !== 'work-state-update-plan'
   || workStateUpdatePlan.updates[0].evidence.length !== 3) {
   throw new Error('Work State update proposal contract is incomplete');
 }
+const workStateApprovalTemplate = buildWorkStateApprovalTemplate({ plan: workStateUpdatePlan });
+if (workStateApprovalTemplate.planId !== workStateUpdatePlan.planId
+  || JSON.stringify(workStateApprovalTemplate.confirmedItems) !== JSON.stringify(workStateUpdatePlan.updates.map((update) => update.item))
+  || workStateApprovalTemplate.reviewedBy !== ''
+  || workStateApprovalTemplate.reviewedAt !== ''
+  || workStateApprovalTemplate.reason !== '') {
+  throw new Error('Work State approval template contract is incomplete');
+}
+const blankWorkStateApplyRejected = (() => {
+  try {
+    applyWorkStateUpdatePlan({
+      currentRows: [],
+      plan: workStateUpdatePlan,
+      approval: workStateApprovalTemplate,
+      knownItemIds: new Set(['youtube:synthetic001']),
+    });
+    return false;
+  } catch (error) {
+    return error.message.includes('approval.reviewedBy is required');
+  }
+})();
+if (!blankWorkStateApplyRejected) throw new Error('blank Work State approval template was accepted');
 let partialProposalRejected = false;
 try {
   buildWorkStateUpdatePlan({ acquisitionPlan, receipt: partialReceipt });
