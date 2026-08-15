@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-06 implemented as a generic, offline-testable
+Status: CAT-00 through CAT-07 in progress as a generic, offline-testable
 vertical slice. No real channel scan has been run from this repository.
 
 ## Completed in this slice
@@ -19,6 +19,10 @@ vertical slice. No real channel scan has been run from this repository.
   `NEW`/`CHANGED`/`UNCHANGED` diffs.
 - CAT-06: deterministic status summaries and Markdown/JSON reports with
   duplicate/reference checks and canonical local-path leak detection.
+- CAT-07: portable row model plus Markdown/JSON views are generic; a synthetic
+  XLSX human view was rendered and visually verified through an optional local
+  renderer, while the repository remains independent of Codex-only spreadsheet
+  packages.
 
 ## Deliberately not included yet
 
@@ -46,8 +50,7 @@ the same observation and normalization boundary.
 
 ## Next gate
 
-Before the first real channel scan, CAT-07 through CAT-08 must add
-XLSX/Markdown item exports and complete the required
+Before the first real channel scan, CAT-08 must complete the required
 catalog data-quality checks. The real scan then remains a local
 Authoring Workspace operation under `E:\GOMYAKU\Catalogs`, never a
 GOMYAKU repository fixture.

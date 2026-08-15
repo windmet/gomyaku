@@ -11,6 +11,8 @@ import {
   parseYtDlpJsonLines,
   summarizeCatalog,
   validateCatalogData,
+  buildCatalogRows,
+  renderCatalogMarkdown,
   validateArchivePackage,
   verifySourceSet,
 } from '../src/index.mjs';
@@ -30,6 +32,8 @@ for (const [name, value] of Object.entries({
   parseYtDlpJsonLines,
   summarizeCatalog,
   validateCatalogData,
+  buildCatalogRows,
+  renderCatalogMarkdown,
 })) {
   if (typeof value !== 'function') throw new Error(`GOMYAKU package surface missing ${name}`);
 }

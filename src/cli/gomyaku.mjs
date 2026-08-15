@@ -5,6 +5,7 @@ import { createYouTubeCatalogProvider } from '../catalog/providers/youtube/ytDlp
 import { mergeMediaItems } from '../catalog/sync/mergeCatalog.mjs';
 import { classifyCatalog } from '../catalog/classify/classifyCatalog.mjs';
 import { renderCatalogStatusMarkdown, summarizeCatalog } from '../catalog/status/catalogStatus.mjs';
+import { buildCatalogRows, renderCatalogMarkdown } from '../catalog/export/catalogExport.mjs';
 import {
   createCatalogWorkspacePaths,
   initializeCatalogWorkspace,
@@ -37,6 +38,7 @@ const usage = () => {
   console.log('  gomyaku catalog sync --provider youtube --source <url> --workspace <path> --observation-file <yt-dlp.jsonl>');
   console.log('  gomyaku catalog classify --workspace <path> [--rules <rules.yaml>] [--overrides <overrides.yaml>]');
   console.log('  gomyaku catalog status --workspace <path>');
+  console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
 };
 
 const requireValue = (value, label) => {
@@ -139,6 +141,25 @@ const catalogCommand = async () => {
     );
     console.log(JSON.stringify(summary, null, 2));
     if (!summary.dataQuality.valid) process.exitCode = 1;
+    return;
+  }
+  if (subcommand === 'export') {
+    const selectedWorkspace = requireValue(workspacePath, '--workspace');
+    const format = readFlag('--format') || 'markdown';
+    if (!['markdown', 'json'].includes(format)) {
+      console.error(`Unsupported catalog export format: ${format}`);
+      process.exit(2);
+    }
+    const paths = createCatalogWorkspacePaths(selectedWorkspace);
+    const items = await readMediaItems(paths.items);
+    const classifications = await readJsonl(paths.classifications, { label: 'classifications.jsonl' });
+    const rows = buildCatalogRows(items, classifications);
+    if (format === 'json') {
+      await writeFile(path.join(paths.generated, 'items-view.json'), `${JSON.stringify(rows, null, 2)}\n`, 'utf8');
+    } else {
+      await writeFile(path.join(paths.generated, 'index.md'), renderCatalogMarkdown(rows, { label: path.basename(paths.root) }), 'utf8');
+    }
+    console.log(JSON.stringify({ format, rows: rows.length }, null, 2));
     return;
   }
   usage();

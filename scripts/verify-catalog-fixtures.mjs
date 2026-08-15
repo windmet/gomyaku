@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
   assertMediaItem,
   buildYtDlpDiscoveryArgs,
+  buildCatalogRows,
   classifyCatalog,
   createYouTubeCatalogProvider,
   mergeMediaItems,
@@ -12,6 +13,7 @@ import {
   parseYtDlpJsonLines,
   summarizeCatalog,
   validateCatalogData,
+  renderCatalogMarkdown,
 } from '../src/index.mjs';
 import {
   createCatalogWorkspacePaths,
@@ -123,6 +125,14 @@ const badReference = validateCatalogData({
 });
 if (badReference.valid || !badReference.failures.some((failure) => failure.includes('unknown item'))) {
   throw new Error('unknown classification reference was not rejected');
+}
+const rows = buildCatalogRows(firstMerge.items, firstClassification.classifications);
+if (rows.length !== 2 || rows[0].url !== 'https://www.youtube.com/watch?v=synthetic001') {
+  throw new Error('catalog export rows are incomplete');
+}
+const markdown = renderCatalogMarkdown(rows, { label: 'Synthetic Catalog', generatedAt: now });
+if (!markdown.includes('| Title |') || !markdown.includes('Synthetic archive stream one')) {
+  throw new Error('catalog Markdown export is incomplete');
 }
 
 const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'gomyaku-catalog-fixture-'));
