@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-07 in progress as a generic, offline-testable
+Status: CAT-00 through CAT-08 are complete as a generic, offline-testable
 vertical slice. No real channel scan has been run from this repository.
 
 ## Completed in this slice
@@ -23,6 +23,12 @@ vertical slice. No real channel scan has been run from this repository.
   XLSX human view was rendered and visually verified through an optional local
   renderer, while the repository remains independent of Codex-only spreadsheet
   packages.
+- CAT-08: the synthetic YouTube fixture exercises the full offline seam:
+  nested and flat yt-dlp observations, stable normalization, idempotent merge,
+  rule/override classification, conflict reporting, unknown-reference and
+  canonical-local-path rejection, status summaries, and Markdown row export.
+  The same fixture runs through `npm run test:catalog` as the pre-network data-
+  quality gate.
 
 ## Deliberately not included yet
 
@@ -50,7 +56,11 @@ the same observation and normalization boundary.
 
 ## Next gate
 
-Before the first real channel scan, CAT-08 must complete the required
-catalog data-quality checks. The real scan then remains a local
-Authoring Workspace operation under `E:\GOMYAKU\Catalogs`, never a
-GOMYAKU repository fixture.
+CAT-09 is the real-channel fixture acceptance. It must run only as a local
+Authoring Workspace operation under `E:\GOMYAKU\Catalogs`, never as a
+GOMYAKU repository fixture or part of the generic test suite. The acceptance
+record must include the exact source URL, observation timestamp, item count,
+metadata completeness, availability distribution, classification coverage,
+unknown/conflict counts, and generated status/export hashes. Cookies, download
+paths, raw observations, and other local acquisition details stay in the local
+workspace boundary.
