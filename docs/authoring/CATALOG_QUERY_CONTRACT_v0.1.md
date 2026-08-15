@@ -13,8 +13,9 @@ work-state.jsonl       local production state
 Supported filters are provider, availability, date range, primary category,
 series, game, format, person, free-text search, audio status, transcript
 status, Project status, and publication candidate. A missing classification or
-Work State entry does not delete the Media Item; it simply fails a filter that
-requires that value.
+Work State entry does not delete the Media Item; status filters treat an
+untracked status as `unknown`, while an explicit `missing` value remains a
+deliberate workflow decision.
 
 Results are deterministic: published date descending, then stable Media Item
 ID ascending. The result contains `{ query, total, matched, rows }`, where each

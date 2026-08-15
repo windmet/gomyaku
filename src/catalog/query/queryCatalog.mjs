@@ -17,6 +17,7 @@ const classificationPeople = (classification) => (classification?.people || []).
 });
 
 const stateValue = (state, path) => path.reduce((value, key) => value?.[key], state);
+const stateStatus = (state, path) => stateValue(state, path) ?? 'unknown';
 
 const matchesDateRange = (publishedAt, query) => {
   if (!query.dateFrom && !query.dateTo) return true;
@@ -46,9 +47,9 @@ const matchesQuery = ({ item, classification, workState }, query) => {
       .join('\n');
     if (!haystack.includes(normalizeText(query.search))) return false;
   }
-  if (query.audioStatus && !hasValue(query.audioStatus, stateValue(workState, ['audio', 'status']))) return false;
-  if (query.transcriptStatus && !hasValue(query.transcriptStatus, stateValue(workState, ['transcript', 'status']))) return false;
-  if (query.projectStatus && !hasValue(query.projectStatus, stateValue(workState, ['project', 'status']))) return false;
+  if (query.audioStatus && !hasValue(query.audioStatus, stateStatus(workState, ['audio', 'status']))) return false;
+  if (query.transcriptStatus && !hasValue(query.transcriptStatus, stateStatus(workState, ['transcript', 'status']))) return false;
+  if (query.projectStatus && !hasValue(query.projectStatus, stateStatus(workState, ['project', 'status']))) return false;
   if (!matchesBoolean(stateValue(workState, ['publication', 'candidate']), query.publicationCandidate)) return false;
   return true;
 };

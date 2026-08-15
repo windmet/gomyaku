@@ -186,6 +186,15 @@ const queryMarkdown = renderCatalogQueryMarkdown(radioQuery, { label: 'Synthetic
 if (!queryMarkdown.includes('Synthetic archive stream one') || !queryMarkdown.includes('downloaded')) {
   throw new Error('catalog query Markdown export is incomplete');
 }
+const unknownStatusQuery = queryCatalog({
+  items: firstMerge.items,
+  classifications: firstClassification.classifications,
+  workState: [syntheticWorkState[0]],
+  query: { transcriptStatus: 'unknown' },
+});
+if (unknownStatusQuery.matched !== 1 || unknownStatusQuery.rows[0].item.id !== 'youtube:synthetic002') {
+  throw new Error('catalog query missing Work State must be surfaced as unknown');
+}
 const materializationPlan = buildProjectMaterializationPlan({
   catalog: {
     id: 'synthetic-youtube',
