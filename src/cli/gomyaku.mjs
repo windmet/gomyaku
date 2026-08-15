@@ -250,8 +250,31 @@ const catalogCommand = async () => {
       approval,
       knownItemIds: new Set(items.map((item) => item.id)),
     });
-    await writeFile(absoluteBackup, (await readFile(absoluteWorkState, 'utf8')), 'utf8');
-    await writeJsonl(paths.workState, result.rows);
+    const originalWorkState = await readFile(absoluteWorkState, 'utf8');
+    await writeFile(absoluteBackup, originalWorkState, 'utf8');
+    let persistedRows;
+    let postApplyEvidence;
+    try {
+      await writeJsonl(paths.workState, result.rows);
+      persistedRows = await readJsonl(paths.workState, { label: 'work-state.jsonl' });
+      const persistedValidation = validateWorkStateRows(
+        persistedRows,
+        { knownItemIds: new Set(items.map((item) => item.id)) },
+      );
+      if (!persistedValidation.valid) {
+        throw new Error(`post-apply Work State validation failed: ${persistedValidation.failures.join('; ')}`);
+      }
+      postApplyEvidence = await checkEvidenceFiles({
+        records: persistedRows.filter((row) => result.appliedItems.includes(row.item)),
+        root: evidenceRoot,
+      });
+      if (postApplyEvidence.failures.length) {
+        throw new Error(`post-apply evidence check failed: ${JSON.stringify(postApplyEvidence)}`);
+      }
+    } catch (error) {
+      await writeFile(absoluteWorkState, originalWorkState, 'utf8');
+      throw new Error(`${error.message}; work-state.jsonl restored from backup`);
+    }
     const report = {
       kind: 'work-state-apply-report',
       valid: true,
@@ -260,6 +283,7 @@ const catalogCommand = async () => {
       changedSections: result.changedSections,
       backup: absoluteBackup,
       evidence,
+      postApplyEvidence,
       workState: paths.workState,
     };
     const output = `${JSON.stringify(report, null, 2)}\n`;

@@ -88,9 +88,11 @@ gomyaku catalog apply-work-state-plan \
   --apply-reviewed
 ```
 
-The apply report records the backup and changed sections. No real Catalog row
-is applied by synthetic tests; an operator must create the approval artifact
-after checking the Project manifest.
+The apply report records the backup, changed sections, and post-apply checks.
+If writing or post-write validation fails, the command restores the original
+`work-state.jsonl` from the in-memory copy after creating the requested backup.
+No real Catalog row is applied by synthetic tests; an operator must create the
+approval artifact after checking the Project manifest.
 
 ## Boundary decisions
 
