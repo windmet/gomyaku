@@ -14,6 +14,7 @@ export { buildProjectMaterializationPlan } from './catalog/materialize/materiali
 export { approveMaterializationPlan } from './catalog/materialize/approveMaterializationPlan.mjs';
 export { buildMaterializationApprovalTemplate, buildSourceSetApprovalTemplate } from './catalog/materialize/approvalTemplates.mjs';
 export { buildAcquisitionPlan } from './catalog/acquire/acquisitionPlan.mjs';
+export { buildAcquisitionReceiptTemplate } from './catalog/acquire/acquisitionReceiptTemplate.mjs';
 export { verifyAcquisitionReceipt } from './catalog/acquire/acquisitionReceipt.mjs';
 export { assertWorkState, validateWorkState, validateWorkStateRows } from './catalog/workstate/workState.mjs';
 export { buildWorkStateUpdatePlan } from './catalog/workstate/workStateUpdatePlan.mjs';

@@ -11,6 +11,7 @@ import { buildProjectMaterializationPlan } from '../catalog/materialize/material
 import { approveMaterializationPlan } from '../catalog/materialize/approveMaterializationPlan.mjs';
 import { buildMaterializationApprovalTemplate, buildSourceSetApprovalTemplate } from '../catalog/materialize/approvalTemplates.mjs';
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
+import { buildAcquisitionReceiptTemplate } from '../catalog/acquire/acquisitionReceiptTemplate.mjs';
 import { verifyAcquisitionReceipt } from '../catalog/acquire/acquisitionReceipt.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
 import { buildWorkStateUpdatePlan } from '../catalog/workstate/workStateUpdatePlan.mjs';
@@ -69,6 +70,7 @@ const usage = () => {
   console.log('  gomyaku project source-set-approve --plan <source-set-review.json> --approval <approval.json> --evidence-root <workspace-root> [--out <approved-source-set.json>]');
   console.log('  gomyaku project materialize-source-set --source-set <approved-source-set.json> --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
   console.log('  gomyaku acquire plan --workspace <path> --item <media-id>[,<media-id>] --artifact audio,chat,comments --plan-id <id> --reason <text> [--materialization-plan <approved-plan.json>] [--out <path>]');
+  console.log('  gomyaku acquire receipt-template --plan <acquisition-plan.json> [--out <receipt-template.json>]');
   console.log('  gomyaku acquire verify-receipt --plan <acquisition-plan.json> --receipt <acquisition-receipt.json> --evidence-root <workspace-root> [--out <report.json>]');
 };
 
@@ -483,6 +485,16 @@ if (command === 'acquire' && args[1] === 'verify-receipt') {
   if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
   else process.stdout.write(output);
   if (!report.valid) process.exitCode = 1;
+  process.exit(0);
+}
+
+if (command === 'acquire' && args[1] === 'receipt-template') {
+  const selectedPlanPath = requireValue(readFlag('--plan'), '--plan');
+  const plan = JSON.parse(await readFile(path.resolve(selectedPlanPath), 'utf8'));
+  const template = buildAcquisitionReceiptTemplate({ plan });
+  const output = `${JSON.stringify(template, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
   process.exit(0);
 }
 

@@ -20,6 +20,7 @@ import {
   approveMaterializationPlan,
   buildMaterializationApprovalTemplate,
   buildAcquisitionPlan,
+  buildAcquisitionReceiptTemplate,
   verifyAcquisitionReceipt,
   buildWorkStateUpdatePlan,
   applyWorkStateUpdatePlan,
@@ -308,6 +309,24 @@ const approvedAcquisitionPlan = buildAcquisitionPlan({
 if (approvedAcquisitionPlan.origin.materializationPlanId !== approvedMaterializationPlan.planId
   || approvedAcquisitionPlan.selection.materializationApproval?.projectId !== materializationPlan.project.id) {
   throw new Error('acquisition/materialization approval binding is incomplete');
+}
+const acquisitionReceiptTemplate = buildAcquisitionReceiptTemplate({ plan: approvedAcquisitionPlan });
+if (acquisitionReceiptTemplate.kind !== 'acquisition-receipt'
+  || acquisitionReceiptTemplate.planId !== approvedAcquisitionPlan.planId
+  || acquisitionReceiptTemplate.artifacts.length !== 1
+  || acquisitionReceiptTemplate.artifacts[0].item !== 'youtube:synthetic001'
+  || acquisitionReceiptTemplate.artifacts[0].type !== 'audio'
+  || acquisitionReceiptTemplate.artifacts[0].status !== ''
+  || acquisitionReceiptTemplate.artifacts[0].evidence.length !== 0
+  || acquisitionReceiptTemplate.execution.status !== ''
+  || acquisitionReceiptTemplate.execution.executedBy !== '') {
+  throw new Error('acquisition receipt template contract is incomplete');
+}
+const blankReceiptResult = verifyAcquisitionReceipt({ plan: approvedAcquisitionPlan, receipt: acquisitionReceiptTemplate });
+if (blankReceiptResult.valid
+  || !blankReceiptResult.failures.some((failure) => failure.includes('execution.status must be completed, partial, or failed'))
+  || !blankReceiptResult.failures.some((failure) => failure.includes('receipt.artifacts[0].status must be completed, failed, or skipped'))) {
+  throw new Error('blank acquisition receipt template was accepted or lost its pending boundary');
 }
 let materializationDriftRejected = false;
 try {

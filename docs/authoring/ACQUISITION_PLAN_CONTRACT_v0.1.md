@@ -53,6 +53,19 @@ raw provider JSON. It does not call yt-dlp, modify `work-state.jsonl`, run
 Whisper, or publish anything. A later local executor must be a separate,
 explicitly authorized step.
 
+Before execution, generate a receipt hand-off from the plan:
+
+```text
+gomyaku acquire receipt-template \
+  --plan acquisition-plan.json \
+  --out acquisition-receipt.template.json
+```
+
+The template copies every planned item/artifact pair exactly once and leaves
+execution status, operator metadata, artifact status, evidence and notes blank.
+It is intentionally invalid until the operator fills it after real execution;
+the command performs no download, GUI work, ASR, or Work State mutation.
+
 ## Execution receipt
 
 After an operator or provider adapter actually performs the plan, it should

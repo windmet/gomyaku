@@ -73,6 +73,9 @@ is local-only.
 - CAT-25: pending materialization and Source Set Review plans can generate
   exact-ID approval templates; reviewer metadata stays blank and no approval
   is inferred.
+- CAT-26: an Acquisition Plan can generate an exact-coverage receipt template;
+  execution metadata, result status, evidence and notes remain blank until
+  real work is performed.
 
 ## Deliberately not included yet
 
