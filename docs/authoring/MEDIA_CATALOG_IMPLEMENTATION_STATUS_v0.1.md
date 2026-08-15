@@ -1,9 +1,9 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-24 now extend the
-generic slice with read-only query and explicit materialization plans. The
-workflow remains offline-testable in this repository; CAT-09 real acceptance
-is local-only.
+Status: CAT-00 through CAT-29 are complete. CAT-00–CAT-08 establish the
+offline provider seam; CAT-09 is accepted only in the separate local
+Workspace; CAT-10–CAT-29 extend the generic slice with read-only query,
+review/approval hand-offs, execution preflight and failure-safe CLI gates.
 
 ## Completed in this slice
 

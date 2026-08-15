@@ -27,10 +27,9 @@ yt-dlp observations; real channel inventory remains in a separate local
 Authoring Workspace and never enters this repository. Query, source-set
 approval, materialization approval, receipt-template, receipt-verification,
 Work State proposal, Work State approval-template, and execution-preflight
-commands are
-non-destructive; template commands only copy exact plan coverage and leave
-execution/review fields blank. The separate apply command mutates only after
-explicit review, evidence, backup, and `--apply-reviewed`.
+commands are non-destructive; template commands only copy exact plan coverage
+and leave execution/review fields blank. The separate apply command mutates
+only after explicit review, evidence, backup, and `--apply-reviewed`.
 
 Provider tools remain interchangeable authoring inputs. The future consumer
 direction is `GOMYAKU -> publication`; publication data does not flow back into
