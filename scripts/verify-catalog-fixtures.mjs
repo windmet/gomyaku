@@ -20,6 +20,7 @@ import {
   buildAcquisitionPlan,
   validateWorkState,
   validateWorkStateRows,
+  buildSourceSetReviewPlan,
 } from '../src/index.mjs';
 import {
   createCatalogWorkspacePaths,
@@ -253,6 +254,52 @@ if (multiMaterializationPlan.origin.mediaItemId !== undefined
   || multiMaterializationPlan.selection.sourceSet.kind !== 'multi') {
   throw new Error('explicit multi-source materialization plan contract is incomplete');
 }
+const sourceSetReviewPlan = buildSourceSetReviewPlan({
+  projectId: 'synthetic-cross-provider-project',
+  selectionReason: 'Synthetic explicit cross-provider review',
+  sources: [
+    {
+      id: 'youtube:synthetic001',
+      provider: 'youtube',
+      externalId: 'synthetic001',
+      origin: 'catalog',
+      catalogItemId: 'youtube:synthetic001',
+      url: 'https://www.youtube.com/watch?v=synthetic001',
+      evidence: ['catalog/items.jsonl'],
+    },
+    {
+      id: 'x-space:synthetic-space',
+      provider: 'x-space',
+      externalId: 'synthetic-space',
+      origin: 'explicit',
+      evidence: ['project/source-set-notes.md'],
+    },
+  ],
+});
+if (sourceSetReviewPlan.kind !== 'source-set-review-plan'
+  || sourceSetReviewPlan.selection.sourceSetKind !== 'multi'
+  || sourceSetReviewPlan.sources[1].urlStatus !== 'unresolved'
+  || sourceSetReviewPlan.review.status !== 'pending'
+  || sourceSetReviewPlan.selection.inference !== 'disabled') {
+  throw new Error('cross-provider source-set review plan contract is incomplete');
+}
+let sourceSetRejected = false;
+try {
+  buildSourceSetReviewPlan({
+    projectId: 'synthetic-invalid',
+    selectionReason: 'invalid fixture',
+    sources: [{
+      id: 'x-space:invalid',
+      provider: 'x-space',
+      externalId: 'invalid',
+      origin: 'explicit',
+      evidence: ['C:\\private\\source.md'],
+    }],
+  });
+} catch (error) {
+  sourceSetRejected = error.message.includes('workspace-relative');
+}
+if (!sourceSetRejected) throw new Error('source-set absolute evidence path was not rejected');
 const acquisitionPlan = buildAcquisitionPlan({
   catalog: {
     id: 'synthetic-youtube',

@@ -10,6 +10,7 @@ import { queryCatalog, renderCatalogQueryMarkdown } from '../catalog/query/query
 import { buildProjectMaterializationPlan } from '../catalog/materialize/materializeProject.mjs';
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
+import { buildSourceSetReviewPlan } from '../catalog/sourceset/sourceSetReview.mjs';
 import {
   createCatalogWorkspacePaths,
   initializeCatalogWorkspace,
@@ -28,6 +29,7 @@ const readFlag = (name) => {
 };
 const inputPath = readFlag('--input');
 const outputPath = readFlag('--out');
+const sourcesInputPath = readFlag('--sources');
 const workspacePath = readFlag('--workspace');
 const source = readFlag('--source');
 const provider = readFlag('--provider');
@@ -50,6 +52,7 @@ const usage = () => {
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
+  console.log('  gomyaku project source-set-plan --sources <sources.json> --project-id <slug> --reason <text> [--out <path>]');
   console.log('  gomyaku acquire plan --workspace <path> --item <media-id>[,<media-id>] --artifact audio,chat,comments --plan-id <id> --reason <text> [--out <path>]');
 };
 
@@ -315,6 +318,23 @@ if (command === 'acquire' && args[1] === 'plan') {
     itemIds: selectedItemIds,
     artifacts: listFlag('--artifact') || ['audio'],
     planId: selectedPlanId,
+    selectionReason,
+  });
+  const output = `${JSON.stringify(plan, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
+  process.exit(0);
+}
+
+if (command === 'project' && args[1] === 'source-set-plan') {
+  const selectedSourcesPath = requireValue(sourcesInputPath, '--sources');
+  const selectedProjectId = requireValue(readFlag('--project-id'), '--project-id');
+  const selectionReason = requireValue(readFlag('--reason'), '--reason');
+  const sourceDocument = JSON.parse(await readFile(path.resolve(selectedSourcesPath), 'utf8'));
+  const sources = Array.isArray(sourceDocument) ? sourceDocument : sourceDocument.sources;
+  const plan = buildSourceSetReviewPlan({
+    projectId: selectedProjectId,
+    sources,
     selectionReason,
   });
   const output = `${JSON.stringify(plan, null, 2)}\n`;

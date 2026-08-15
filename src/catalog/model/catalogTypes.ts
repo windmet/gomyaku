@@ -169,6 +169,36 @@ export interface CatalogWorkState {
   evidence: string[];
 }
 
+export interface SourceSetReviewPlan {
+  schemaVersion: 1;
+  kind: 'source-set-review-plan';
+  planId: string;
+  project: { id: string };
+  selection: {
+    reason: string;
+    sourceCount: number;
+    sourceSetKind: 'single' | 'multi';
+    inference: 'disabled';
+  };
+  sources: Array<{
+    id: string;
+    provider: string;
+    externalId: string;
+    origin: 'catalog' | 'explicit';
+    catalogItemId?: string;
+    url?: string;
+    urlStatus: 'provided' | 'unresolved';
+    title?: string;
+    evidence: string[];
+  }>;
+  review: {
+    status: 'pending';
+    requiresHumanConfirmation: true;
+    workStateMutation: 'separate-reviewed-step';
+  };
+  nextSteps: string[];
+}
+
 export interface CatalogQueryResult {
   query: CatalogQuery;
   total: number;

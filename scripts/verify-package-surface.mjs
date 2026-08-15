@@ -15,6 +15,7 @@ import {
   renderCatalogMarkdown,
   validateWorkState,
   validateWorkStateRows,
+  buildSourceSetReviewPlan,
   validateArchivePackage,
   verifySourceSet,
 } from '../src/index.mjs';
@@ -38,6 +39,7 @@ for (const [name, value] of Object.entries({
   renderCatalogMarkdown,
   validateWorkState,
   validateWorkStateRows,
+  buildSourceSetReviewPlan,
 })) {
   if (typeof value !== 'function') throw new Error(`GOMYAKU package surface missing ${name}`);
 }

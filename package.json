@@ -32,6 +32,7 @@
     "./catalog/materialize": "./src/catalog/materialize/materializeProject.mjs",
     "./catalog/acquire": "./src/catalog/acquire/acquisitionPlan.mjs",
     "./catalog/work-state": "./src/catalog/workstate/workState.mjs",
+    "./catalog/source-set": "./src/catalog/sourceset/sourceSetReview.mjs",
     "./catalog/workspace": "./src/catalog/workspace/catalogWorkspace.mjs"
   },
   "devDependencies": {

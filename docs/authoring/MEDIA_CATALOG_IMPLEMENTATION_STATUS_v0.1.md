@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-14 now extend the
+Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-15 now extend the
 generic slice with read-only query and explicit materialization plans. The
 workflow remains offline-testable in this repository; CAT-09 real acceptance
 is local-only.
@@ -44,6 +44,8 @@ is local-only.
 - CAT-14: Project materialization accepts an explicitly listed single- or
   multi-source set without inferring additional origins; the single-source
   plan shape remains compatible.
+- CAT-15: provider-neutral Source Set Review Plans represent explicitly listed
+  cross-provider sources with unresolved URLs allowed and inference disabled.
 
 ## Deliberately not included yet
 
