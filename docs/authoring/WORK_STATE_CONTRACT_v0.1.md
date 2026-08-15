@@ -51,6 +51,25 @@ package exports the structural validators at
 `gomyaku/catalog/work-state`. No validator writes Work State or executes an
 acquisition plan; actual file existence is intentionally a local CLI gate.
 
+## Receipt-to-Work-State proposal
+
+After a complete `acquisition-receipt` passes its evidence gate, the generic
+CLI can create a pending `work-state-update-plan`:
+
+```text
+gomyaku catalog work-state-plan \
+  --acquisition-plan acquisition-plan.json \
+  --receipt acquisition-receipt.json \
+  --evidence-root E:\\GOMYAKU \
+  --out work-state-update-plan.json
+```
+
+The proposal maps completed audio/video/chat/comments artifacts to
+`downloaded` sections and retains the receipt evidence paths. It rejects
+partial receipts and stays `review.pending`; a separate local operation must
+apply the rows after checking the Project manifest. The command never edits
+`work-state.jsonl`.
+
 ## Boundary decisions
 
 - Work State stays in the local Catalog workspace; it is not copied into

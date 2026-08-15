@@ -169,6 +169,20 @@ export interface CatalogWorkState {
   evidence: string[];
 }
 
+export interface WorkStateUpdatePlan {
+  schemaVersion: 1;
+  kind: 'work-state-update-plan';
+  planId: string;
+  origin: { acquisitionPlanId: string; acquisitionReceiptPlanId: string };
+  review: {
+    status: 'pending';
+    requiresHumanConfirmation: true;
+    workStateMutation: 'separate-apply-step';
+  };
+  updates: Array<Record<string, unknown>>;
+  nextSteps: string[];
+}
+
 export interface SourceSetReviewPlan {
   schemaVersion: 1;
   kind: 'source-set-review-plan';

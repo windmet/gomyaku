@@ -19,6 +19,7 @@ import {
   buildProjectMaterializationPlan,
   buildAcquisitionPlan,
   verifyAcquisitionReceipt,
+  buildWorkStateUpdatePlan,
   validateWorkState,
   validateWorkStateRows,
   buildSourceSetReviewPlan,
@@ -416,6 +417,26 @@ const partialReceipt = {
 if (!verifyAcquisitionReceipt({ plan: acquisitionPlan, receipt: partialReceipt }).valid) {
   throw new Error('partial acquisition receipt with a skipped artifact was rejected');
 }
+const workStateUpdatePlan = buildWorkStateUpdatePlan({
+  acquisitionPlan,
+  receipt: acquisitionReceipt,
+});
+if (workStateUpdatePlan.kind !== 'work-state-update-plan'
+  || workStateUpdatePlan.review.status !== 'pending'
+  || workStateUpdatePlan.review.requiresHumanConfirmation !== true
+  || workStateUpdatePlan.updates.length !== 1
+  || workStateUpdatePlan.updates[0].audio?.status !== 'downloaded'
+  || workStateUpdatePlan.updates[0].chat?.status !== 'downloaded'
+  || workStateUpdatePlan.updates[0].evidence.length !== 3) {
+  throw new Error('Work State update proposal contract is incomplete');
+}
+let partialProposalRejected = false;
+try {
+  buildWorkStateUpdatePlan({ acquisitionPlan, receipt: partialReceipt });
+} catch (error) {
+  partialProposalRejected = error.message.includes('completed acquisition receipt');
+}
+if (!partialProposalRejected) throw new Error('partial receipt was accepted for Work State proposal');
 
 const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'gomyaku-catalog-fixture-'));
 try {

@@ -11,6 +11,7 @@ import { buildProjectMaterializationPlan } from '../catalog/materialize/material
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
 import { verifyAcquisitionReceipt } from '../catalog/acquire/acquisitionReceipt.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
+import { buildWorkStateUpdatePlan } from '../catalog/workstate/workStateUpdatePlan.mjs';
 import { buildSourceSetReviewPlan } from '../catalog/sourceset/sourceSetReview.mjs';
 import { approveSourceSetReviewPlan } from '../catalog/sourceset/approveSourceSet.mjs';
 import { buildSourceSetMaterializationPlan } from '../catalog/materialize/materializeSourceSet.mjs';
@@ -53,6 +54,7 @@ const usage = () => {
   console.log('  gomyaku catalog classify --workspace <path> [--rules <rules.yaml>] [--overrides <overrides.yaml>]');
   console.log('  gomyaku catalog status --workspace <path>');
   console.log('  gomyaku catalog validate-work-state --workspace <path> [--evidence-root <workspace-root>] [--out <report.json>]');
+  console.log('  gomyaku catalog work-state-plan --acquisition-plan <plan.json> --receipt <receipt.json> --evidence-root <workspace-root> [--out <proposal.json>]');
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
@@ -196,6 +198,23 @@ const catalogCommand = async () => {
     if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
     else process.stdout.write(output);
     if (!report.valid) process.exitCode = 1;
+    return;
+  }
+  if (subcommand === 'work-state-plan') {
+    const selectedPlanPath = requireValue(readFlag('--acquisition-plan'), '--acquisition-plan');
+    const selectedReceiptPath = requireValue(readFlag('--receipt'), '--receipt');
+    const evidenceRoot = requireValue(readFlag('--evidence-root'), '--evidence-root');
+    const acquisitionPlan = JSON.parse(await readFile(path.resolve(selectedPlanPath), 'utf8'));
+    const receipt = JSON.parse(await readFile(path.resolve(selectedReceiptPath), 'utf8'));
+    const proposal = buildWorkStateUpdatePlan({ acquisitionPlan, receipt });
+    const evidenceRecords = receipt.artifacts.filter((artifact) => artifact.status === 'completed');
+    const evidence = await checkEvidenceFiles({ records: evidenceRecords, root: evidenceRoot });
+    if (evidence.status !== 'checked' || evidence.failures.length) {
+      throw new Error(`Work State proposal requires a clean evidence check: ${JSON.stringify(evidence)}`);
+    }
+    const output = `${JSON.stringify({ ...proposal, evidence }, null, 2)}\n`;
+    if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+    else process.stdout.write(output);
     return;
   }
   if (subcommand === 'export') {
