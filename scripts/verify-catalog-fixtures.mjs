@@ -18,6 +18,7 @@ import {
   renderCatalogQueryMarkdown,
   buildProjectMaterializationPlan,
   buildAcquisitionPlan,
+  verifyAcquisitionReceipt,
   validateWorkState,
   validateWorkStateRows,
   buildSourceSetReviewPlan,
@@ -375,6 +376,45 @@ if (acquisitionPlan.kind !== 'acquisition-plan'
   || acquisitionPlan.execution.status !== 'not-executed'
   || acquisitionPlan.execution.explicitApprovalRequired !== true) {
   throw new Error('acquisition plan contract is incomplete');
+}
+const acquisitionReceipt = {
+  schemaVersion: 1,
+  kind: 'acquisition-receipt',
+  planId: acquisitionPlan.planId,
+  execution: {
+    status: 'completed',
+    adapter: 'synthetic-local-adapter',
+    executedBy: 'synthetic-operator',
+    executedAt: '2026-08-15T00:00:00.000Z',
+    finishedAt: '2026-08-15T00:01:00.000Z',
+  },
+  artifacts: acquisitionPlan.requests[0].artifacts.map((artifact) => ({
+    item: acquisitionPlan.requests[0].item.id,
+    type: artifact.type,
+    status: 'completed',
+    evidence: [`project/${artifact.type}.bin`],
+  })),
+};
+const receiptResult = verifyAcquisitionReceipt({ plan: acquisitionPlan, receipt: acquisitionReceipt });
+if (!receiptResult.valid || receiptResult.summary.plannedArtifacts !== 3) {
+  throw new Error('acquisition receipt contract is incomplete');
+}
+const incompleteReceipt = {
+  ...acquisitionReceipt,
+  artifacts: acquisitionReceipt.artifacts.slice(0, 2),
+};
+if (verifyAcquisitionReceipt({ plan: acquisitionPlan, receipt: incompleteReceipt }).valid) {
+  throw new Error('incomplete acquisition receipt was accepted');
+}
+const partialReceipt = {
+  ...acquisitionReceipt,
+  execution: { ...acquisitionReceipt.execution, status: 'partial' },
+  artifacts: acquisitionReceipt.artifacts.map((artifact, index) => index === 0
+    ? artifact
+    : { item: artifact.item, type: artifact.type, status: 'skipped', note: 'Synthetic operator deferred this artifact' }),
+};
+if (!verifyAcquisitionReceipt({ plan: acquisitionPlan, receipt: partialReceipt }).valid) {
+  throw new Error('partial acquisition receipt with a skipped artifact was rejected');
 }
 
 const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'gomyaku-catalog-fixture-'));

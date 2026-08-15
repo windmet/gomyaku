@@ -279,3 +279,23 @@ export interface AcquisitionPlan {
     workStateMutation: 'separate-execution-step';
   };
 }
+
+export interface AcquisitionReceipt {
+  schemaVersion: 1;
+  kind: 'acquisition-receipt';
+  planId: string;
+  execution: {
+    status: 'completed' | 'partial' | 'failed';
+    adapter: string;
+    executedBy: string;
+    executedAt: string;
+    finishedAt?: string;
+  };
+  artifacts: Array<{
+    item: string;
+    type: AcquisitionArtifact;
+    status: 'completed' | 'failed' | 'skipped';
+    evidence?: string[];
+    note?: string;
+  }>;
+}

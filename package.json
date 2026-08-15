@@ -31,6 +31,7 @@
     "./catalog/query": "./src/catalog/query/queryCatalog.mjs",
     "./catalog/materialize": "./src/catalog/materialize/materializeProject.mjs",
     "./catalog/acquire": "./src/catalog/acquire/acquisitionPlan.mjs",
+    "./catalog/acquire-receipt": "./src/catalog/acquire/acquisitionReceipt.mjs",
     "./catalog/work-state": "./src/catalog/workstate/workState.mjs",
     "./catalog/source-set": "./src/catalog/sourceset/sourceSetReview.mjs",
     "./catalog/source-set-approval": "./src/catalog/sourceset/approveSourceSet.mjs",

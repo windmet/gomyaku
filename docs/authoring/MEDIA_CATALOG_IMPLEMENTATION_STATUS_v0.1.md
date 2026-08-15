@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-19 now extend the
+Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-20 now extend the
 generic slice with read-only query and explicit materialization plans. The
 workflow remains offline-testable in this repository; CAT-09 real acceptance
 is local-only.
@@ -56,6 +56,9 @@ is local-only.
 - CAT-19: an approved provider-neutral Source Set can produce a read-only
   Project materialization plan without inventing Catalog classifications or
   collapsing X Space sources into YouTube metadata.
+- CAT-20: Acquisition Plans have a separate receipt verifier that requires
+  exact item/artifact coverage, explicit execution metadata, status consistency,
+  and evidence-file checks without mutating Work State.
 
 ## Deliberately not included yet
 

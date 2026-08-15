@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "acquisition-plan",
+  "planId": "synthetic-cli-receipt",
+  "origin": {
+    "catalogId": "synthetic-youtube",
+    "catalogSource": "https://www.youtube.com/@synthetic/streams"
+  },
+  "selection": {
+    "reason": "Synthetic CLI receipt verification",
+    "itemCount": 1,
+    "artifactTypes": ["audio", "chat"]
+  },
+  "requests": [
+    {
+      "item": {
+        "id": "youtube:synthetic001",
+        "externalId": "synthetic001",
+        "provider": "youtube",
+        "url": "https://www.youtube.com/watch?v=synthetic001",
+        "title": "Synthetic item",
+        "availability": {"status": "available"}
+      },
+      "classification": null,
+      "existing": {"audio": "unknown", "chat": "unknown", "comments": "unknown"},
+      "artifacts": [
+        {"type": "audio", "status": "planned"},
+        {"type": "chat", "status": "planned"}
+      ],
+      "eligibility": "eligible"
+    }
+  ],
+  "execution": {
+    "status": "not-executed",
+    "explicitApprovalRequired": true,
+    "downloader": null,
+    "workStateMutation": "separate-execution-step"
+  }
+}

@@ -9,6 +9,7 @@ import { buildCatalogRows, renderCatalogMarkdown } from '../catalog/export/catal
 import { queryCatalog, renderCatalogQueryMarkdown } from '../catalog/query/queryCatalog.mjs';
 import { buildProjectMaterializationPlan } from '../catalog/materialize/materializeProject.mjs';
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
+import { verifyAcquisitionReceipt } from '../catalog/acquire/acquisitionReceipt.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
 import { buildSourceSetReviewPlan } from '../catalog/sourceset/sourceSetReview.mjs';
 import { approveSourceSetReviewPlan } from '../catalog/sourceset/approveSourceSet.mjs';
@@ -59,6 +60,7 @@ const usage = () => {
   console.log('  gomyaku project source-set-approve --plan <source-set-review.json> --approval <approval.json> --evidence-root <workspace-root> [--out <approved-source-set.json>]');
   console.log('  gomyaku project materialize-source-set --source-set <approved-source-set.json> --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
   console.log('  gomyaku acquire plan --workspace <path> --item <media-id>[,<media-id>] --artifact audio,chat,comments --plan-id <id> --reason <text> [--out <path>]');
+  console.log('  gomyaku acquire verify-receipt --plan <acquisition-plan.json> --receipt <acquisition-receipt.json> --evidence-root <workspace-root> [--out <report.json>]');
 };
 
 const requireValue = (value, label) => {
@@ -331,6 +333,31 @@ if (command === 'acquire' && args[1] === 'plan') {
   const output = `${JSON.stringify(plan, null, 2)}\n`;
   if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
   else process.stdout.write(output);
+  process.exit(0);
+}
+
+if (command === 'acquire' && args[1] === 'verify-receipt') {
+  const selectedPlanPath = requireValue(readFlag('--plan'), '--plan');
+  const selectedReceiptPath = requireValue(readFlag('--receipt'), '--receipt');
+  const evidenceRoot = requireValue(readFlag('--evidence-root'), '--evidence-root');
+  const plan = JSON.parse(await readFile(path.resolve(selectedPlanPath), 'utf8'));
+  const receipt = JSON.parse(await readFile(path.resolve(selectedReceiptPath), 'utf8'));
+  const structural = verifyAcquisitionReceipt({ plan, receipt });
+  const evidenceRecords = Array.isArray(receipt.artifacts)
+    ? receipt.artifacts.filter((artifact) => artifact.status === 'completed')
+    : [];
+  const evidence = await checkEvidenceFiles({ records: evidenceRecords, root: evidenceRoot });
+  const report = {
+    kind: 'acquisition-receipt-verification',
+    valid: structural.valid && evidence.failures.length === 0,
+    structural,
+    evidence,
+    workStateMutation: 'separate-reviewed-step',
+  };
+  const output = `${JSON.stringify(report, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
+  if (!report.valid) process.exitCode = 1;
   process.exit(0);
 }
 

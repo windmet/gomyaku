@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "kind": "acquisition-receipt",
+  "planId": "synthetic-cli-receipt",
+  "execution": {
+    "status": "completed",
+    "adapter": "synthetic-fixture-adapter",
+    "executedBy": "synthetic-operator",
+    "executedAt": "2026-08-15T00:00:00.000Z",
+    "finishedAt": "2026-08-15T00:01:00.000Z"
+  },
+  "artifacts": [
+    {
+      "item": "youtube:synthetic001",
+      "type": "audio",
+      "status": "completed",
+      "evidence": ["tests/fixtures/catalog/rules.yaml"]
+    },
+    {
+      "item": "youtube:synthetic001",
+      "type": "chat",
+      "status": "completed",
+      "evidence": ["tests/fixtures/catalog/overrides.yaml"]
+    }
+  ]
+}

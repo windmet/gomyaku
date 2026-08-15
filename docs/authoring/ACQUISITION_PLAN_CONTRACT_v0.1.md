@@ -34,3 +34,47 @@ The plan does not contain cookies, browser profiles, local download paths or
 raw provider JSON. It does not call yt-dlp, modify `work-state.jsonl`, run
 Whisper, or publish anything. A later local executor must be a separate,
 explicitly authorized step.
+
+## Execution receipt
+
+After an operator or provider adapter actually performs the plan, it should
+write a separate `acquisition-receipt` rather than editing the plan or guessing
+Work State. Every planned item/artifact pair must appear exactly once:
+
+```json
+{
+  "schemaVersion": 1,
+  "kind": "acquisition-receipt",
+  "planId": "komachoe-20260309-r1",
+  "execution": {
+    "status": "completed",
+    "adapter": "local-yt-dlp-wrapper",
+    "executedBy": "operator-id",
+    "executedAt": "2026-08-15T00:00:00.000Z"
+  },
+  "artifacts": [
+    {
+      "item": "youtube:example",
+      "type": "audio",
+      "status": "completed",
+      "evidence": ["Projects/example/source/audio.wav"]
+    }
+  ]
+}
+```
+
+`completed` artifacts require workspace-relative evidence paths. `failed` and
+`skipped` artifacts require a note. The read-only verifier checks plan coverage,
+duplicate/extraneous artifacts, execution status consistency, and actual file
+existence when an evidence root is supplied:
+
+```text
+gomyaku acquire verify-receipt \
+  --plan acquisition-plan.json \
+  --receipt acquisition-receipt.json \
+  --evidence-root E:\\GOMYAKU \
+  --out acquisition-receipt-report.json
+```
+
+The verifier never writes `work-state.jsonl`; a human or a separate reviewed
+adapter must perform that state transition using the verified receipt.
