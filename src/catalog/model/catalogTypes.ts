@@ -124,3 +124,62 @@ export interface CatalogStatusSummary {
   workStateCount: number;
   dataQuality: { valid: boolean; failures: string[] };
 }
+
+export interface CatalogQuery {
+  provider?: string | string[];
+  availability?: AvailabilityStatus | AvailabilityStatus[];
+  category?: string | string[];
+  primaryCategory?: string | string[];
+  series?: string | string[];
+  game?: string | string[];
+  format?: string | string[];
+  person?: string | string[];
+  dateFrom?: string;
+  dateTo?: string;
+  search?: string;
+  audioStatus?: string | string[];
+  transcriptStatus?: string | string[];
+  projectStatus?: string | string[];
+  publicationCandidate?: boolean;
+}
+
+export interface CatalogQueryRow {
+  item: MediaItem;
+  classification: CatalogClassification | null;
+  workState: Record<string, unknown> | null;
+}
+
+export interface CatalogQueryResult {
+  query: CatalogQuery;
+  total: number;
+  matched: number;
+  rows: CatalogQueryRow[];
+}
+
+export interface ProjectMaterializationPlan {
+  schemaVersion: 1;
+  kind: 'project-materialization-plan';
+  planId: string;
+  origin: {
+    catalogId: string;
+    catalogSource: string;
+    mediaItemId: string;
+    snapshotId?: string;
+  };
+  project: {
+    id: string;
+    title: string;
+    status: 'planned';
+    sceneType: string;
+    root?: string;
+  };
+  source: Record<string, unknown>;
+  classification: Record<string, unknown> | null;
+  selection: {
+    reason: string;
+    requiresReviewedSourceSet: true;
+    requiresExplicitAcquisition: true;
+    requiresEditorialAuthoring: true;
+  };
+  nextSteps: string[];
+}

@@ -6,6 +6,8 @@ import { mergeMediaItems } from '../catalog/sync/mergeCatalog.mjs';
 import { classifyCatalog } from '../catalog/classify/classifyCatalog.mjs';
 import { renderCatalogStatusMarkdown, summarizeCatalog } from '../catalog/status/catalogStatus.mjs';
 import { buildCatalogRows, renderCatalogMarkdown } from '../catalog/export/catalogExport.mjs';
+import { queryCatalog, renderCatalogQueryMarkdown } from '../catalog/query/queryCatalog.mjs';
+import { buildProjectMaterializationPlan } from '../catalog/materialize/materializeProject.mjs';
 import {
   createCatalogWorkspacePaths,
   initializeCatalogWorkspace,
@@ -30,6 +32,10 @@ const provider = readFlag('--provider');
 const observationFile = readFlag('--observation-file');
 const rulesFile = readFlag('--rules');
 const overridesFile = readFlag('--overrides');
+const listFlag = (name) => {
+  const value = readFlag(name);
+  return value ? value.split(',').map((entry) => entry.trim()).filter(Boolean) : undefined;
+};
 
 const usage = () => {
   console.log('Usage:');
@@ -39,6 +45,8 @@ const usage = () => {
   console.log('  gomyaku catalog classify --workspace <path> [--rules <rules.yaml>] [--overrides <overrides.yaml>]');
   console.log('  gomyaku catalog status --workspace <path>');
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
+  console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
+  console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id> --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
 };
 
 const requireValue = (value, label) => {
@@ -162,12 +170,92 @@ const catalogCommand = async () => {
     console.log(JSON.stringify({ format, rows: rows.length }, null, 2));
     return;
   }
+  if (subcommand === 'query') {
+    const selectedWorkspace = requireValue(workspacePath, '--workspace');
+    const paths = createCatalogWorkspacePaths(selectedWorkspace);
+    const items = await readMediaItems(paths.items);
+    const classifications = await readJsonl(paths.classifications, { label: 'classifications.jsonl' });
+    const workState = await readJsonl(paths.workState, { label: 'work-state.jsonl' });
+    const publicationCandidate = readFlag('--publication-candidate');
+    if (publicationCandidate !== undefined && !['true', 'false'].includes(publicationCandidate)) {
+      console.error('--publication-candidate must be true or false');
+      process.exit(2);
+    }
+    const result = queryCatalog({
+      items,
+      classifications,
+      workState,
+      query: {
+        provider: listFlag('--provider'),
+        availability: listFlag('--availability'),
+        category: listFlag('--category'),
+        series: listFlag('--series'),
+        game: listFlag('--game'),
+        format: listFlag('--format'),
+        person: listFlag('--person'),
+        dateFrom: readFlag('--date-from'),
+        dateTo: readFlag('--date-to'),
+        search: readFlag('--search'),
+        audioStatus: listFlag('--audio-status'),
+        transcriptStatus: listFlag('--transcript-status'),
+        projectStatus: listFlag('--project-status'),
+        publicationCandidate: publicationCandidate === undefined ? undefined : publicationCandidate === 'true',
+      },
+    });
+    const outputFormat = readFlag('--format-out') || 'json';
+    if (!['json', 'markdown'].includes(outputFormat)) {
+      console.error(`Unsupported query output format: ${outputFormat}`);
+      process.exit(2);
+    }
+    const output = outputFormat === 'markdown'
+      ? renderCatalogQueryMarkdown(result, { label: path.basename(paths.root) })
+      : `${JSON.stringify(result, null, 2)}\n`;
+    if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+    else process.stdout.write(output);
+    return;
+  }
   usage();
   process.exit(2);
 };
 
 if (command === 'catalog') {
   await catalogCommand();
+  process.exit(0);
+}
+
+if (command === 'project' && args[1] === 'materialize') {
+  const selectedWorkspace = requireValue(readFlag('--catalog-workspace') || workspacePath, '--catalog-workspace');
+  const selectedItemId = requireValue(readFlag('--item'), '--item');
+  const selectedProjectId = requireValue(readFlag('--project-id'), '--project-id');
+  const selectionReason = requireValue(readFlag('--reason'), '--reason');
+  const paths = createCatalogWorkspacePaths(selectedWorkspace);
+  const items = await readMediaItems(paths.items);
+  const classifications = await readJsonl(paths.classifications, { label: 'classifications.jsonl' });
+  const item = items.find((candidate) => candidate.id === selectedItemId);
+  if (!item) throw new Error(`selected Media Item was not found: ${selectedItemId}`);
+  const classification = classifications.find((candidate) => candidate.item === selectedItemId);
+  const descriptorText = await readFile(paths.descriptor, 'utf8');
+  const descriptor = Object.fromEntries(descriptorText.split(/\r?\n/)
+    .map((line) => line.match(/^([A-Za-z][A-Za-z0-9_]*)\s*:\s*(.*)$/))
+    .filter(Boolean)
+    .map((match) => {
+      let value = match[2].trim();
+      try { value = JSON.parse(value); } catch { /* serializer keeps unquoted scalars valid */ }
+      return [match[1], value];
+    }));
+  const plan = buildProjectMaterializationPlan({
+    catalog: descriptor,
+    item,
+    classification,
+    projectId: selectedProjectId,
+    projectTitle: readFlag('--project-title'),
+    projectRoot: readFlag('--project-root'),
+    selectionReason,
+    snapshotId: readFlag('--snapshot-id'),
+  });
+  const output = `${JSON.stringify(plan, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
   process.exit(0);
 }
 

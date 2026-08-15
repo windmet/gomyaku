@@ -1,7 +1,9 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete as a generic, offline-testable
-vertical slice. No real channel scan has been run from this repository.
+Status: CAT-00 through CAT-08 are complete, and CAT-10/CAT-11 now extend the
+generic slice with read-only query and explicit materialization plans. The
+workflow remains offline-testable in this repository; CAT-09 real acceptance
+is local-only.
 
 ## Completed in this slice
 
@@ -29,6 +31,11 @@ vertical slice. No real channel scan has been run from this repository.
   canonical-local-path rejection, status summaries, and Markdown row export.
   The same fixture runs through `npm run test:catalog` as the pre-network data-
   quality gate.
+- CAT-10: provider-neutral query filters span metadata, classification and
+  local Work State without collapsing those layers; results are deterministic
+  and read-only.
+- CAT-11: explicit Project materialization produces a provenance-rich plan
+  only. It never creates a directory, downloads media, runs ASR, or publishes.
 
 ## Deliberately not included yet
 
@@ -56,11 +63,13 @@ the same observation and normalization boundary.
 
 ## Next gate
 
-CAT-09 is the real-channel fixture acceptance. It must run only as a local
-Authoring Workspace operation under `E:\GOMYAKU\Catalogs`, never as a
-GOMYAKU repository fixture or part of the generic test suite. The acceptance
-record must include the exact source URL, observation timestamp, item count,
-metadata completeness, availability distribution, classification coverage,
-unknown/conflict counts, and generated status/export hashes. Cookies, download
-paths, raw observations, and other local acquisition details stay in the local
-workspace boundary.
+CAT-09 is the real-channel fixture acceptance and is complete in the local
+Workspace. It must run only as a local Authoring Workspace operation under
+`E:\GOMYAKU\Catalogs`, never as a GOMYAKU repository fixture or part of the
+generic test suite. The acceptance record includes the exact source URL,
+observation timestamp, item count, metadata completeness, availability
+distribution, classification coverage, unknown/conflict counts, and generated
+status/export hashes. Cookies, download paths, raw observations, and other
+local acquisition details stay in the local workspace boundary. The next
+local action is to query the catalog and select a real item; only an explicit
+materialization plan may cross into the existing Project authoring workflow.

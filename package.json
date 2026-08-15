@@ -28,6 +28,8 @@
     "./catalog/classify": "./src/catalog/classify/classifyCatalog.mjs",
     "./catalog/status": "./src/catalog/status/catalogStatus.mjs",
     "./catalog/export": "./src/catalog/export/catalogExport.mjs",
+    "./catalog/query": "./src/catalog/query/queryCatalog.mjs",
+    "./catalog/materialize": "./src/catalog/materialize/materializeProject.mjs",
     "./catalog/workspace": "./src/catalog/workspace/catalogWorkspace.mjs"
   },
   "devDependencies": {

@@ -9,3 +9,5 @@ export { mergeMediaItems } from './catalog/sync/mergeCatalog.mjs';
 export { classifyCatalog, matchesClassificationRule, validateClassification } from './catalog/classify/classifyCatalog.mjs';
 export { renderCatalogStatusMarkdown, summarizeCatalog, validateCatalogData } from './catalog/status/catalogStatus.mjs';
 export { buildCatalogRows, renderCatalogMarkdown } from './catalog/export/catalogExport.mjs';
+export { normalizeCatalogQuery, queryCatalog, renderCatalogQueryMarkdown } from './catalog/query/queryCatalog.mjs';
+export { buildProjectMaterializationPlan } from './catalog/materialize/materializeProject.mjs';

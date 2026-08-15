@@ -14,6 +14,9 @@ import {
   summarizeCatalog,
   validateCatalogData,
   renderCatalogMarkdown,
+  queryCatalog,
+  renderCatalogQueryMarkdown,
+  buildProjectMaterializationPlan,
 } from '../src/index.mjs';
 import {
   createCatalogWorkspacePaths,
@@ -145,6 +148,62 @@ if (rows.length !== 2 || rows[0].url !== 'https://www.youtube.com/watch?v=synthe
 const markdown = renderCatalogMarkdown(rows, { label: 'Synthetic Catalog', generatedAt: now });
 if (!markdown.includes('| Title |') || !markdown.includes('Synthetic archive stream one')) {
   throw new Error('catalog Markdown export is incomplete');
+}
+const syntheticWorkState = [
+  {
+    item: 'youtube:synthetic001',
+    audio: { status: 'downloaded' },
+    transcript: { status: 'missing' },
+    project: { status: 'materialized' },
+    publication: { candidate: true },
+  },
+  {
+    item: 'youtube:synthetic002',
+    audio: { status: 'missing' },
+    transcript: { status: 'baseline-complete' },
+    project: { status: 'not-materialized' },
+    publication: { candidate: false },
+  },
+];
+const allQuery = queryCatalog({
+  items: firstMerge.items,
+  classifications: firstClassification.classifications,
+  workState: syntheticWorkState,
+});
+if (allQuery.matched !== 2 || allQuery.rows[0].item.id !== 'youtube:synthetic002') {
+  throw new Error('catalog query default ordering is incorrect');
+}
+const radioQuery = queryCatalog({
+  items: firstMerge.items,
+  classifications: firstClassification.classifications,
+  workState: syntheticWorkState,
+  query: { category: 'radio', audioStatus: 'downloaded', publicationCandidate: true },
+});
+if (radioQuery.matched !== 1 || radioQuery.rows[0].item.id !== 'youtube:synthetic001') {
+  throw new Error('catalog query category/work-state filters failed');
+}
+const queryMarkdown = renderCatalogQueryMarkdown(radioQuery, { label: 'Synthetic query' });
+if (!queryMarkdown.includes('Synthetic archive stream one') || !queryMarkdown.includes('downloaded')) {
+  throw new Error('catalog query Markdown export is incomplete');
+}
+const materializationPlan = buildProjectMaterializationPlan({
+  catalog: {
+    id: 'synthetic-youtube',
+    provider: 'youtube',
+    source: 'https://www.youtube.com/@synthetic/streams',
+  },
+  item: firstMerge.items[0],
+  classification: firstClassification.classifications.find((entry) => entry.item === firstMerge.items[0].id),
+  projectId: 'synthetic-stream-project',
+  selectionReason: 'Synthetic acceptance fixture selection',
+  snapshotId: '2026-08-15-r1',
+});
+if (materializationPlan.kind !== 'project-materialization-plan'
+  || materializationPlan.origin.mediaItemId !== 'youtube:synthetic001'
+  || materializationPlan.project.status !== 'planned'
+  || materializationPlan.project.root !== undefined
+  || materializationPlan.selection.requiresExplicitAcquisition !== true) {
+  throw new Error('project materialization plan contract is incomplete');
 }
 
 const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'gomyaku-catalog-fixture-'));

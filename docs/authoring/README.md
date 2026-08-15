@@ -10,6 +10,8 @@ real publication corpus.
 - [Implementation status](./MEDIA_CATALOG_IMPLEMENTATION_STATUS_v0.1.md)
 - [Classification contract](./CATALOG_CLASSIFICATION_CONTRACT_v0.1.md)
 - [Export contract](./CATALOG_EXPORT_CONTRACT_v0.1.md)
+- [Query contract](./CATALOG_QUERY_CONTRACT_v0.1.md)
+- [Project materialization contract](./PROJECT_MATERIALIZATION_CONTRACT_v0.1.md)
 
 The workflow contract is kept in `docs/development/` because it is part of the
 overall local-development handoff supplied for this milestone. This directory
