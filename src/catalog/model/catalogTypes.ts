@@ -183,7 +183,8 @@ export interface ProjectMaterializationPlan {
   origin: {
     catalogId: string;
     catalogSource: string;
-    mediaItemId: string;
+    mediaItemId?: string;
+    mediaItemIds?: string[];
     snapshotId?: string;
   };
   project: {
@@ -193,10 +194,13 @@ export interface ProjectMaterializationPlan {
     sceneType: string;
     root?: string;
   };
-  source: Record<string, unknown>;
-  classification: Record<string, unknown> | null;
+  source?: Record<string, unknown>;
+  sources?: Array<Record<string, unknown>>;
+  classification?: Record<string, unknown> | null;
+  classifications?: Array<Record<string, unknown> | null>;
   selection: {
     reason: string;
+    sourceSet: { kind: 'single' | 'multi'; mediaItemIds: string[] };
     requiresReviewedSourceSet: true;
     requiresExplicitAcquisition: true;
     requiresEditorialAuthoring: true;

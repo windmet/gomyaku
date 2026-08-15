@@ -49,7 +49,7 @@ const usage = () => {
   console.log('  gomyaku catalog validate-work-state --workspace <path> [--out <report.json>]');
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
-  console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id> --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
+  console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
   console.log('  gomyaku acquire plan --workspace <path> --item <media-id>[,<media-id>] --artifact audio,chat,comments --plan-id <id> --reason <text> [--out <path>]');
 };
 
@@ -259,20 +259,32 @@ if (command === 'catalog') {
 
 if (command === 'project' && args[1] === 'materialize') {
   const selectedWorkspace = requireValue(readFlag('--catalog-workspace') || workspacePath, '--catalog-workspace');
-  const selectedItemId = requireValue(readFlag('--item'), '--item');
+  const selectedItemIds = listFlag('--item') || [];
+  if (!selectedItemIds.length) {
+    console.error('--item is required');
+    usage();
+    process.exit(2);
+  }
   const selectedProjectId = requireValue(readFlag('--project-id'), '--project-id');
   const selectionReason = requireValue(readFlag('--reason'), '--reason');
   const paths = createCatalogWorkspacePaths(selectedWorkspace);
   const items = await readMediaItems(paths.items);
   const classifications = await readJsonl(paths.classifications, { label: 'classifications.jsonl' });
-  const item = items.find((candidate) => candidate.id === selectedItemId);
-  if (!item) throw new Error(`selected Media Item was not found: ${selectedItemId}`);
-  const classification = classifications.find((candidate) => candidate.item === selectedItemId);
+  const selectedItems = selectedItemIds.map((selectedItemId) => {
+    const selected = items.find((candidate) => candidate.id === selectedItemId);
+    if (!selected) throw new Error(`selected Media Item was not found: ${selectedItemId}`);
+    return selected;
+  });
+  const selectedClassifications = selectedItemIds.map((selectedItemId) => {
+    const selected = classifications.find((candidate) => candidate.item === selectedItemId);
+    if (!selected) throw new Error(`classification was not found: ${selectedItemId}`);
+    return selected;
+  });
   const descriptor = await readCatalogDescriptor(paths.descriptor);
   const plan = buildProjectMaterializationPlan({
     catalog: descriptor,
-    item,
-    classification,
+    items: selectedItems,
+    classifications: selectedClassifications,
     projectId: selectedProjectId,
     projectTitle: readFlag('--project-title'),
     projectRoot: readFlag('--project-root'),

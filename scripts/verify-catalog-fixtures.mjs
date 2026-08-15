@@ -231,8 +231,27 @@ if (materializationPlan.kind !== 'project-materialization-plan'
   || materializationPlan.origin.mediaItemId !== 'youtube:synthetic001'
   || materializationPlan.project.status !== 'planned'
   || materializationPlan.project.root !== undefined
+  || materializationPlan.selection.sourceSet.kind !== 'single'
   || materializationPlan.selection.requiresExplicitAcquisition !== true) {
   throw new Error('project materialization plan contract is incomplete');
+}
+const multiMaterializationPlan = buildProjectMaterializationPlan({
+  catalog: {
+    id: 'synthetic-youtube',
+    provider: 'youtube',
+    source: 'https://www.youtube.com/@synthetic/streams',
+  },
+  items: firstMerge.items,
+  classifications: firstClassification.classifications,
+  projectId: 'synthetic-multi-source-project',
+  selectionReason: 'Synthetic explicit multi-source source-set selection',
+});
+if (multiMaterializationPlan.origin.mediaItemId !== undefined
+  || JSON.stringify(multiMaterializationPlan.origin.mediaItemIds) !== JSON.stringify(firstMerge.items.map((item) => item.id))
+  || multiMaterializationPlan.sources?.length !== 2
+  || multiMaterializationPlan.classifications?.length !== 2
+  || multiMaterializationPlan.selection.sourceSet.kind !== 'multi') {
+  throw new Error('explicit multi-source materialization plan contract is incomplete');
 }
 const acquisitionPlan = buildAcquisitionPlan({
   catalog: {
