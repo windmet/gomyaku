@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-03 in progress as a generic, offline-testable
+Status: CAT-00 through CAT-04 in progress as a generic, offline-testable
 vertical slice. No real channel scan has been run from this repository.
 
 ## Completed in this slice
@@ -12,6 +12,8 @@ vertical slice. No real channel scan has been run from this repository.
   synthetic fixtures;
 - CAT-03: YouTube/yt-dlp flat-observation parser, argument builder, and an
   offline `catalog sync --observation-file` path.
+- CAT-04: idempotent JSONL merge with `NEW`/`UPDATED`/`UNCHANGED`/`REJECTED`
+  counts; observation timestamps do not create false metadata updates.
 
 ## Deliberately not included yet
 
@@ -39,8 +41,8 @@ the same observation and normalization boundary.
 
 ## Next gate
 
-Before the first real channel scan, CAT-04 through CAT-08 must add incremental
-merge reporting, rule/override classification, status/query/export views, and
-the required catalog data-quality checks. The real scan then remains a local
+Before the first real channel scan, CAT-05 through CAT-08 must add
+rule/override classification, status/query/export views, and the required
+catalog data-quality checks. The real scan then remains a local
 Authoring Workspace operation under `E:\AI_Subtitle_Studio\01_Catalogs`, never a
 GOMYAKU repository fixture.
