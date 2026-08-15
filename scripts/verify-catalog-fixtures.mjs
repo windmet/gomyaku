@@ -289,6 +289,25 @@ if (approvedAcquisitionPlan.origin.materializationPlanId !== approvedMaterializa
   || approvedAcquisitionPlan.selection.materializationApproval?.projectId !== materializationPlan.project.id) {
   throw new Error('acquisition/materialization approval binding is incomplete');
 }
+let materializationDriftRejected = false;
+try {
+  buildAcquisitionPlan({
+    catalog: { id: 'synthetic-youtube', provider: 'youtube', source: 'https://www.youtube.com/@synthetic/streams' },
+    items: firstMerge.items,
+    classifications: firstClassification.classifications,
+    itemIds: ['youtube:synthetic001'],
+    artifacts: ['audio'],
+    planId: 'synthetic-drifted-materialization-acquisition',
+    selectionReason: 'approved source metadata drift must be rejected',
+    materializationPlan: {
+      ...approvedMaterializationPlan,
+      source: { ...approvedMaterializationPlan.source, title: 'Synthetic archive stream one (drifted)' },
+    },
+  });
+} catch (error) {
+  materializationDriftRejected = error.message.includes('drifted');
+}
+if (!materializationDriftRejected) throw new Error('approved materialization source drift was accepted');
 const multiMaterializationPlan = buildProjectMaterializationPlan({
   catalog: {
     id: 'synthetic-youtube',

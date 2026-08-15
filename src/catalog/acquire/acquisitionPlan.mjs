@@ -38,6 +38,7 @@ export const buildAcquisitionPlan = ({
   }
   const selectedPlanId = requiredString(planId, 'planId');
   const reason = requiredString(selectionReason, 'selectionReason');
+  const itemsById = new Map(items.map((item) => [item.id, item]));
   let materializationApproval;
   if (materializationPlan !== undefined) {
     if (!materializationPlan || materializationPlan.kind !== 'project-materialization-plan') {
@@ -55,6 +56,23 @@ export const buildAcquisitionPlan = ({
       || sortedApprovedIds.some((id, index) => id !== selectedIds[index])) {
       throw new Error('acquisition item ids must exactly match the approved materialization plan');
     }
+    const approvedSources = materializationPlan.source
+      ? [materializationPlan.source]
+      : Array.isArray(materializationPlan.sources) ? materializationPlan.sources : [];
+    const approvedByItemId = new Map(approvedSources.map((source) => [
+      `${source.provider}:${source.externalId}`,
+      source,
+    ]));
+    selectedIds.forEach((itemId) => {
+      const currentItem = itemsById.get(itemId);
+      const approvedSource = approvedByItemId.get(itemId);
+      if (!approvedSource) throw new Error(`approved materialization source is missing: ${itemId}`);
+      for (const field of ['provider', 'externalId', 'url', 'title']) {
+        if (approvedSource[field] !== currentItem[field]) {
+          throw new Error(`approved materialization ${field} drifted for ${itemId}`);
+        }
+      }
+    });
     materializationApproval = {
       planId: materializationPlan.planId,
       projectId: materializationPlan.project.id,
@@ -62,7 +80,6 @@ export const buildAcquisitionPlan = ({
       reviewedAt: materializationPlan.approval.reviewedAt,
     };
   }
-  const itemsById = new Map(items.map((item) => [item.id, item]));
   const classificationsByItem = new Map(classifications.map((classification) => [classification.item, classification]));
   const workStateByItem = new Map(workState.map((state) => [state.item, state]));
   const requests = selectedIds.map((itemId) => {
