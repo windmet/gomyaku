@@ -11,6 +11,7 @@ export { renderCatalogStatusMarkdown, summarizeCatalog, validateCatalogData } fr
 export { buildCatalogRows, renderCatalogMarkdown } from './catalog/export/catalogExport.mjs';
 export { normalizeCatalogQuery, queryCatalog, renderCatalogQueryMarkdown } from './catalog/query/queryCatalog.mjs';
 export { buildProjectMaterializationPlan } from './catalog/materialize/materializeProject.mjs';
+export { buildProjectExecutionPreflight } from './catalog/preflight/projectExecutionPreflight.mjs';
 export { approveMaterializationPlan } from './catalog/materialize/approveMaterializationPlan.mjs';
 export { buildMaterializationApprovalTemplate, buildSourceSetApprovalTemplate } from './catalog/materialize/approvalTemplates.mjs';
 export { buildAcquisitionPlan } from './catalog/acquire/acquisitionPlan.mjs';

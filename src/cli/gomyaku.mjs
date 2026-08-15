@@ -8,6 +8,7 @@ import { renderCatalogStatusMarkdown, summarizeCatalog } from '../catalog/status
 import { buildCatalogRows, renderCatalogMarkdown } from '../catalog/export/catalogExport.mjs';
 import { queryCatalog, renderCatalogQueryMarkdown } from '../catalog/query/queryCatalog.mjs';
 import { buildProjectMaterializationPlan } from '../catalog/materialize/materializeProject.mjs';
+import { buildProjectExecutionPreflight } from '../catalog/preflight/projectExecutionPreflight.mjs';
 import { approveMaterializationPlan } from '../catalog/materialize/approveMaterializationPlan.mjs';
 import { buildMaterializationApprovalTemplate, buildSourceSetApprovalTemplate } from '../catalog/materialize/approvalTemplates.mjs';
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
@@ -65,6 +66,7 @@ const usage = () => {
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
+  console.log('  gomyaku project execution-preflight --materialization-plan <approved-plan.json> --acquisition-plan <acquisition-plan.json> --workspace-root <path> [--project-root <path>] [--out <report.json>]');
   console.log('  gomyaku project materialize-approve --plan <materialization-plan.json> --approval <approval.json> [--out <approved-plan.json>]');
   console.log('  gomyaku project materialize-approval-template --plan <materialization-plan.json> [--out <approval-template.json>]');
   console.log('  gomyaku project source-set-plan --sources <sources.json> --project-id <slug> --reason <text> [--evidence-root <workspace-root>] [--out <path>]');
@@ -419,6 +421,24 @@ if (command === 'project' && args[1] === 'materialize') {
   if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
   else process.stdout.write(output);
   process.exit(0);
+}
+
+if (command === 'project' && args[1] === 'execution-preflight') {
+  const selectedMaterializationPath = requireValue(readFlag('--materialization-plan'), '--materialization-plan');
+  const selectedAcquisitionPath = requireValue(readFlag('--acquisition-plan'), '--acquisition-plan');
+  const selectedWorkspaceRoot = requireValue(readFlag('--workspace-root'), '--workspace-root');
+  const materializationPlan = JSON.parse(await readFile(path.resolve(selectedMaterializationPath), 'utf8'));
+  const acquisitionPlan = JSON.parse(await readFile(path.resolve(selectedAcquisitionPath), 'utf8'));
+  const report = buildProjectExecutionPreflight({
+    materializationPlan,
+    acquisitionPlan,
+    workspaceRoot: selectedWorkspaceRoot,
+    projectRoot: readFlag('--project-root'),
+  });
+  const output = `${JSON.stringify(report, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
+  process.exit(report.valid ? 0 : 1);
 }
 
 if (command === 'project' && args[1] === 'materialize-approve') {

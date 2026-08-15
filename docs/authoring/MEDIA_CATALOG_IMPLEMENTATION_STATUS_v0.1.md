@@ -79,6 +79,9 @@ is local-only.
 - CAT-27: a pending Work State update proposal can generate an exact-item
   approval template; review metadata stays blank and the apply gate remains
   separately enforced.
+- CAT-28: a read-only Project execution preflight rejects pending or unbound
+  plans and unsafe Project roots before any local production adapter receives
+  them.
 
 ## Deliberately not included yet
 

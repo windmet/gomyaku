@@ -17,6 +17,7 @@ import {
   queryCatalog,
   renderCatalogQueryMarkdown,
   buildProjectMaterializationPlan,
+  buildProjectExecutionPreflight,
   approveMaterializationPlan,
   buildMaterializationApprovalTemplate,
   buildAcquisitionPlan,
@@ -310,6 +311,39 @@ const approvedAcquisitionPlan = buildAcquisitionPlan({
 if (approvedAcquisitionPlan.origin.materializationPlanId !== approvedMaterializationPlan.planId
   || approvedAcquisitionPlan.selection.materializationApproval?.projectId !== materializationPlan.project.id) {
   throw new Error('acquisition/materialization approval binding is incomplete');
+}
+const preflightRoot = path.join(os.tmpdir(), 'gomyaku-synthetic-workspace');
+const preflightProjectRoot = path.join(preflightRoot, 'Projects', materializationPlan.project.id);
+const executionPreflight = buildProjectExecutionPreflight({
+  materializationPlan: approvedMaterializationPlan,
+  acquisitionPlan: approvedAcquisitionPlan,
+  workspaceRoot: path.join(preflightRoot, 'Projects'),
+  projectRoot: preflightProjectRoot,
+});
+if (!executionPreflight.valid
+  || executionPreflight.mutation !== 'none'
+  || !executionPreflight.checks.some((check) => check.id === 'approved-materialization' && check.status === 'pass')
+  || !executionPreflight.checks.some((check) => check.id === 'source-selection-parity' && check.status === 'pass')
+  || !executionPreflight.checks.some((check) => check.id === 'project-root-state' && check.status === 'not-created')) {
+  throw new Error('approved project execution preflight contract is incomplete');
+}
+const unsafePreflight = buildProjectExecutionPreflight({
+  materializationPlan,
+  acquisitionPlan: buildAcquisitionPlan({
+    catalog: { id: 'synthetic-youtube', provider: 'youtube', source: 'https://www.youtube.com/@synthetic/streams' },
+    items: firstMerge.items,
+    classifications: firstClassification.classifications,
+    itemIds: ['youtube:synthetic001'],
+    artifacts: ['audio'],
+    planId: 'synthetic-unbound-preflight-acquisition',
+    selectionReason: 'unbound plan must not reach execution',
+  }),
+  workspaceRoot: path.join(preflightRoot, 'Projects'),
+  projectRoot: preflightProjectRoot,
+});
+if (unsafePreflight.valid
+  || !unsafePreflight.failures.includes('an approved materialization plan is required')) {
+  throw new Error('unbound acquisition plan passed project execution preflight');
 }
 const acquisitionReceiptTemplate = buildAcquisitionReceiptTemplate({ plan: approvedAcquisitionPlan });
 if (acquisitionReceiptTemplate.kind !== 'acquisition-receipt'

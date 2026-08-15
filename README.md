@@ -21,12 +21,13 @@ The current v0.1 surface includes:
 - fictional simple, multi-track, and public-record fixtures.
 
 The first Authoring vertical slice is the provider-neutral Media Catalog /
-Source Discovery boundary. Its contract and current CAT-00–CAT-27 status are
+Source Discovery boundary. Its contract and current CAT-00–CAT-28 status are
 documented in [`docs/authoring/`](docs/authoring/). Catalog tests use synthetic
 yt-dlp observations; real channel inventory remains in a separate local
 Authoring Workspace and never enters this repository. Query, source-set
 approval, materialization approval, receipt-template, receipt-verification,
-Work State proposal, and Work State approval-template commands are
+Work State proposal, Work State approval-template, and execution-preflight
+commands are
 non-destructive; template commands only copy exact plan coverage and leave
 execution/review fields blank. The separate apply command mutates only after
 explicit review, evidence, backup, and `--apply-reviewed`.
