@@ -266,6 +266,7 @@ const sourceSetReviewPlan = buildSourceSetReviewPlan({
       origin: 'catalog',
       catalogItemId: 'youtube:synthetic001',
       url: 'https://www.youtube.com/watch?v=synthetic001',
+      urlEvidence: ['https://www.youtube.com/watch?v=synthetic001'],
       evidence: ['catalog/items.jsonl'],
     },
     {
@@ -280,6 +281,7 @@ const sourceSetReviewPlan = buildSourceSetReviewPlan({
 if (sourceSetReviewPlan.kind !== 'source-set-review-plan'
   || sourceSetReviewPlan.selection.sourceSetKind !== 'multi'
   || sourceSetReviewPlan.sources[1].urlStatus !== 'unresolved'
+  || sourceSetReviewPlan.sources[0].urlEvidence?.length !== 1
   || sourceSetReviewPlan.review.status !== 'pending'
   || sourceSetReviewPlan.selection.inference !== 'disabled') {
   throw new Error('cross-provider source-set review plan contract is incomplete');

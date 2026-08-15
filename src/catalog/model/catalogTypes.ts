@@ -188,6 +188,7 @@ export interface SourceSetReviewPlan {
     catalogItemId?: string;
     url?: string;
     urlStatus: 'provided' | 'unresolved';
+    urlEvidence?: string[];
     title?: string;
     evidence: string[];
   }>;

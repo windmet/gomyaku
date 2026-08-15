@@ -19,6 +19,8 @@ Each source has a stable `id`, provider, external ID, origin (`catalog` or
 missing; in that case the plan records `urlStatus: unresolved` rather than
 constructing a URL from a filename or ID. The plan sets
 `selection.inference: disabled` and `review.requiresHumanConfirmation: true`.
+When a URL was checked externally, optional `urlEvidence` records the exact
+HTTP(S) page used for that check.
 
 The generic CLI accepts a JSON source list:
 

@@ -34,6 +34,15 @@ const normalizeSource = (source, index) => {
   if (source.url !== undefined && source.url !== null && typeof source.url !== 'string') {
     throw new Error(`${label}.url must be a string when provided`);
   }
+  let urlEvidence;
+  if (source.urlEvidence !== undefined) {
+    if (!Array.isArray(source.urlEvidence) || !source.urlEvidence.length) throw new Error(`${label}.urlEvidence must be a non-empty array`);
+    urlEvidence = source.urlEvidence.map((entry, evidenceIndex) => {
+      const value = requiredString(entry, `${label}.urlEvidence[${evidenceIndex}]`);
+      if (!/^https?:\/\//i.test(value)) throw new Error(`${label}.urlEvidence[${evidenceIndex}] must be an http(s) URL`);
+      return value;
+    });
+  }
   return {
     id,
     provider,
@@ -42,6 +51,7 @@ const normalizeSource = (source, index) => {
     ...(source.catalogItemId ? { catalogItemId: source.catalogItemId } : {}),
     ...(source.url ? { url: source.url } : {}),
     urlStatus: source.url ? 'provided' : 'unresolved',
+    ...(urlEvidence ? { urlEvidence } : {}),
     ...(source.title ? { title: requiredString(source.title, `${label}.title`) } : {}),
     evidence: normalizeEvidence(source.evidence, label),
   };
@@ -51,6 +61,7 @@ export const buildSourceSetReviewPlan = ({ projectId, sources, selectionReason }
   const selectedProjectId = requiredString(projectId, 'projectId');
   if (!Array.isArray(sources) || !sources.length) throw new Error('at least one source is required');
   const normalizedSources = sources.map(normalizeSource);
+  const unresolvedUrlCount = normalizedSources.filter((source) => source.urlStatus === 'unresolved').length;
   const sourceIds = new Set();
   normalizedSources.forEach((source) => {
     if (sourceIds.has(source.id)) throw new Error(`duplicate source id: ${source.id}`);
@@ -75,7 +86,7 @@ export const buildSourceSetReviewPlan = ({ projectId, sources, selectionReason }
     },
     nextSteps: [
       'confirm that every listed source belongs to the Project',
-      'resolve missing URLs or provider metadata without inferring from filenames',
+      ...(unresolvedUrlCount ? ['resolve missing URLs or provider metadata without inferring from filenames'] : []),
       'approve the source set before materialization or acquisition',
     ],
   };
