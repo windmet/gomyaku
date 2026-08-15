@@ -106,3 +106,21 @@ export interface CatalogClassificationReport {
   unclassified: number;
   overridden: number;
 }
+
+export interface CatalogStatusSummary {
+  itemCount: number;
+  metadataComplete: number;
+  availability: Record<string, number>;
+  mediaTypes: Record<string, number>;
+  classification: {
+    classified: number;
+    unclassified: number;
+    conflict: number;
+    overridden: number;
+  };
+  primaryCategories: Record<string, number>;
+  distinctSeries: number;
+  distinctGames: number;
+  workStateCount: number;
+  dataQuality: { valid: boolean; failures: string[] };
+}

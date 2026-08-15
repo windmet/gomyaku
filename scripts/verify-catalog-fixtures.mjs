@@ -10,6 +10,8 @@ import {
   normalizeMediaItem,
   normalizeYouTubeObservation,
   parseYtDlpJsonLines,
+  summarizeCatalog,
+  validateCatalogData,
 } from '../src/index.mjs';
 import {
   createCatalogWorkspacePaths,
@@ -99,6 +101,29 @@ const conflictClassification = classifyCatalog({
   overridesDocument: { schemaVersion: 1, overrides: {} },
 });
 if (conflictClassification.report.conflict !== 1) throw new Error('same-priority scalar conflict was not surfaced');
+
+const status = summarizeCatalog({
+  items: firstMerge.items,
+  classifications: firstClassification.classifications,
+  workState: [],
+});
+if (status.itemCount !== 2 || status.metadataComplete !== 2) throw new Error('catalog status item counts are incorrect');
+if (status.primaryCategories.radio !== 1 || status.primaryCategories.event !== 1) {
+  throw new Error('catalog status category counts are incorrect');
+}
+if (!status.dataQuality.valid) throw new Error(`synthetic catalog quality failed: ${status.dataQuality.failures.join('; ')}`);
+const leakingItems = [{ ...firstMerge.items[0], description: 'C:\\private\\source.wav' }];
+const leakCheck = validateCatalogData({ items: leakingItems, classifications: [] });
+if (leakCheck.valid || !leakCheck.failures.some((failure) => failure.includes('local path'))) {
+  throw new Error('canonical local-path leak was not rejected');
+}
+const badReference = validateCatalogData({
+  items: firstMerge.items,
+  classifications: [{ ...firstClassification.classifications[0], item: 'youtube:missing' }],
+});
+if (badReference.valid || !badReference.failures.some((failure) => failure.includes('unknown item'))) {
+  throw new Error('unknown classification reference was not rejected');
+}
 
 const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'gomyaku-catalog-fixture-'));
 try {

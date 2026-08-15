@@ -26,6 +26,7 @@
     "./catalog/normalize": "./src/catalog/normalize/normalizeMediaItem.mjs",
     "./catalog/providers/youtube": "./src/catalog/providers/youtube/ytDlpProvider.mjs",
     "./catalog/classify": "./src/catalog/classify/classifyCatalog.mjs",
+    "./catalog/status": "./src/catalog/status/catalogStatus.mjs",
     "./catalog/workspace": "./src/catalog/workspace/catalogWorkspace.mjs"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-05 implemented as a generic, offline-testable
+Status: CAT-00 through CAT-06 implemented as a generic, offline-testable
 vertical slice. No real channel scan has been run from this repository.
 
 ## Completed in this slice
@@ -17,6 +17,8 @@ vertical slice. No real channel scan has been run from this repository.
 - CAT-05: deterministic rule classification, reviewed override precedence,
   same-priority scalar conflict detection, unclassified counts, and rerunnable
   `NEW`/`CHANGED`/`UNCHANGED` diffs.
+- CAT-06: deterministic status summaries and Markdown/JSON reports with
+  duplicate/reference checks and canonical local-path leak detection.
 
 ## Deliberately not included yet
 
@@ -44,8 +46,8 @@ the same observation and normalization boundary.
 
 ## Next gate
 
-Before the first real channel scan, CAT-06 through CAT-08 must add
-status/query/export views and the required
+Before the first real channel scan, CAT-07 through CAT-08 must add
+XLSX/Markdown item exports and complete the required
 catalog data-quality checks. The real scan then remains a local
 Authoring Workspace operation under `E:\GOMYAKU\Catalogs`, never a
 GOMYAKU repository fixture.

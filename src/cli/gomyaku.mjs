@@ -4,6 +4,7 @@ import { compileProject } from '../compiler/compileProject.mjs';
 import { createYouTubeCatalogProvider } from '../catalog/providers/youtube/ytDlpProvider.mjs';
 import { mergeMediaItems } from '../catalog/sync/mergeCatalog.mjs';
 import { classifyCatalog } from '../catalog/classify/classifyCatalog.mjs';
+import { renderCatalogStatusMarkdown, summarizeCatalog } from '../catalog/status/catalogStatus.mjs';
 import {
   createCatalogWorkspacePaths,
   initializeCatalogWorkspace,
@@ -35,6 +36,7 @@ const usage = () => {
   console.log('  gomyaku catalog init --provider <provider> --source <url> --workspace <path> [--label <label>]');
   console.log('  gomyaku catalog sync --provider youtube --source <url> --workspace <path> --observation-file <yt-dlp.jsonl>');
   console.log('  gomyaku catalog classify --workspace <path> [--rules <rules.yaml>] [--overrides <overrides.yaml>]');
+  console.log('  gomyaku catalog status --workspace <path>');
 };
 
 const requireValue = (value, label) => {
@@ -120,6 +122,23 @@ const catalogCommand = async () => {
       'utf8',
     );
     console.log(JSON.stringify(result.report, null, 2));
+    return;
+  }
+  if (subcommand === 'status') {
+    const selectedWorkspace = requireValue(workspacePath, '--workspace');
+    const paths = createCatalogWorkspacePaths(selectedWorkspace);
+    const items = await readMediaItems(paths.items);
+    const classifications = await readJsonl(paths.classifications, { label: 'classifications.jsonl' });
+    const workState = await readJsonl(paths.workState, { label: 'work-state.jsonl' });
+    const summary = summarizeCatalog({ items, classifications, workState });
+    await writeFile(path.join(paths.generated, 'catalog-status.json'), `${JSON.stringify(summary, null, 2)}\n`, 'utf8');
+    await writeFile(
+      path.join(paths.generated, 'catalog-report.md'),
+      renderCatalogStatusMarkdown(summary, path.basename(paths.root)),
+      'utf8',
+    );
+    console.log(JSON.stringify(summary, null, 2));
+    if (!summary.dataQuality.valid) process.exitCode = 1;
     return;
   }
   usage();

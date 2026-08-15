@@ -9,6 +9,8 @@ import {
   normalizeMediaItem,
   normalizeYouTubeObservation,
   parseYtDlpJsonLines,
+  summarizeCatalog,
+  validateCatalogData,
   validateArchivePackage,
   verifySourceSet,
 } from '../src/index.mjs';
@@ -26,6 +28,8 @@ for (const [name, value] of Object.entries({
   normalizeMediaItem,
   normalizeYouTubeObservation,
   parseYtDlpJsonLines,
+  summarizeCatalog,
+  validateCatalogData,
 })) {
   if (typeof value !== 'function') throw new Error(`GOMYAKU package surface missing ${name}`);
 }

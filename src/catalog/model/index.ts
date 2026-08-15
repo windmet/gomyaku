@@ -3,6 +3,7 @@ export type {
   CatalogDescriptor,
   CatalogClassification,
   CatalogClassificationReport,
+  CatalogStatusSummary,
   CatalogSyncReport,
   CatalogWorkspacePaths,
   LiveStatus,

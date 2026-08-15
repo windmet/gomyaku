@@ -7,3 +7,4 @@ export { normalizeMediaItem } from './catalog/normalize/normalizeMediaItem.mjs';
 export { buildYtDlpDiscoveryArgs, createYouTubeCatalogProvider, normalizeYouTubeObservation, parseYtDlpJsonLines } from './catalog/providers/youtube/ytDlpProvider.mjs';
 export { mergeMediaItems } from './catalog/sync/mergeCatalog.mjs';
 export { classifyCatalog, matchesClassificationRule, validateClassification } from './catalog/classify/classifyCatalog.mjs';
+export { renderCatalogStatusMarkdown, summarizeCatalog, validateCatalogData } from './catalog/status/catalogStatus.mjs';
