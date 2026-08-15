@@ -33,6 +33,8 @@
     "./catalog/acquire": "./src/catalog/acquire/acquisitionPlan.mjs",
     "./catalog/work-state": "./src/catalog/workstate/workState.mjs",
     "./catalog/source-set": "./src/catalog/sourceset/sourceSetReview.mjs",
+    "./catalog/source-set-approval": "./src/catalog/sourceset/approveSourceSet.mjs",
+    "./catalog/materialize-source-set": "./src/catalog/materialize/materializeSourceSet.mjs",
     "./catalog/workspace": "./src/catalog/workspace/catalogWorkspace.mjs"
   },
   "devDependencies": {

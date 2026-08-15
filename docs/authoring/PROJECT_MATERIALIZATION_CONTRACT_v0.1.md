@@ -40,3 +40,23 @@ It does not create directories, download audio/video/chat/comments, run ASR,
 invent Event records, or publish to Qianqingtie. A local Workspace adapter may
 consume the plan only after source-set review and explicit acquisition. No
 local path is emitted unless the caller supplies `--project-root`.
+
+## Approved cross-provider source sets
+
+For a Project whose sources span providers (for example YouTube plus X
+Spaces), the approved source-set artifact is the input instead of a Catalog
+workspace. This route preserves each explicit provider, URL, external ID, and
+local evidence without inventing Catalog classifications:
+
+```text
+gomyaku project materialize-source-set \
+  --source-set approved-source-set.json \
+  --project-id komatsu36 \
+  --reason "Human-approved source set for local authoring" \
+  --out project-materialization-plan.json
+```
+
+The command is still a plan-only operation. It rejects a pending review plan,
+unresolved URL, or missing evidence list, and it sets
+`selection.inference: disabled`. It does not create directories, download
+media, run ASR, write Work State, or publish.

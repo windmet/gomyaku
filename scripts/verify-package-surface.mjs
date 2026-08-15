@@ -16,6 +16,8 @@ import {
   validateWorkState,
   validateWorkStateRows,
   buildSourceSetReviewPlan,
+  approveSourceSetReviewPlan,
+  buildSourceSetMaterializationPlan,
   validateArchivePackage,
   verifySourceSet,
 } from '../src/index.mjs';
@@ -40,6 +42,8 @@ for (const [name, value] of Object.entries({
   validateWorkState,
   validateWorkStateRows,
   buildSourceSetReviewPlan,
+  approveSourceSetReviewPlan,
+  buildSourceSetMaterializationPlan,
 })) {
   if (typeof value !== 'function') throw new Error(`GOMYAKU package surface missing ${name}`);
 }

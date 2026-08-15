@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-17 now extend the
+Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-19 now extend the
 generic slice with read-only query and explicit materialization plans. The
 workflow remains offline-testable in this repository; CAT-09 real acceptance
 is local-only.
@@ -50,6 +50,12 @@ is local-only.
   and rejects missing or symlink-escaped evidence without mutating state.
 - CAT-17: Work State and Source Set Review share the same explicit local
   evidence-file gate and report checked/missing counts.
+- CAT-18: Source Set Review has an explicit approval artifact that requires
+  exact source-ID confirmation, reviewer metadata, provided URLs, and a clean
+  local evidence check; approval never mutates Work State.
+- CAT-19: an approved provider-neutral Source Set can produce a read-only
+  Project materialization plan without inventing Catalog classifications or
+  collapsing X Space sources into YouTube metadata.
 
 ## Deliberately not included yet
 
@@ -85,5 +91,6 @@ observation timestamp, item count, metadata completeness, availability
 distribution, classification coverage, unknown/conflict counts, and generated
 status/export hashes. Cookies, download paths, raw observations, and other
 local acquisition details stay in the local workspace boundary. The next
-local action is to query the catalog and select a real item; only an explicit
-materialization plan may cross into the existing Project authoring workflow.
+local action is a human-approved source-set rehearsal. The real `komatsu36`
+plan remains pending until its operator supplies an approval artifact; no
+approval is inferred from the URLs or local filenames.

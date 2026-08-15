@@ -11,6 +11,8 @@ import { buildProjectMaterializationPlan } from '../catalog/materialize/material
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
 import { buildSourceSetReviewPlan } from '../catalog/sourceset/sourceSetReview.mjs';
+import { approveSourceSetReviewPlan } from '../catalog/sourceset/approveSourceSet.mjs';
+import { buildSourceSetMaterializationPlan } from '../catalog/materialize/materializeSourceSet.mjs';
 import { checkEvidenceFiles } from '../catalog/evidence/evidenceFiles.mjs';
 import {
   createCatalogWorkspacePaths,
@@ -54,6 +56,8 @@ const usage = () => {
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
   console.log('  gomyaku project source-set-plan --sources <sources.json> --project-id <slug> --reason <text> [--evidence-root <workspace-root>] [--out <path>]');
+  console.log('  gomyaku project source-set-approve --plan <source-set-review.json> --approval <approval.json> --evidence-root <workspace-root> [--out <approved-source-set.json>]');
+  console.log('  gomyaku project materialize-source-set --source-set <approved-source-set.json> --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
   console.log('  gomyaku acquire plan --workspace <path> --item <media-id>[,<media-id>] --artifact audio,chat,comments --plan-id <id> --reason <text> [--out <path>]');
 };
 
@@ -343,6 +347,41 @@ if (command === 'project' && args[1] === 'source-set-plan') {
   });
   const evidence = await checkEvidenceFiles({ records: plan.sources, root: readFlag('--evidence-root') });
   const output = `${JSON.stringify({ ...plan, evidence }, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
+  process.exit(0);
+}
+
+if (command === 'project' && args[1] === 'source-set-approve') {
+  const selectedPlanPath = requireValue(readFlag('--plan'), '--plan');
+  const selectedApprovalPath = requireValue(readFlag('--approval'), '--approval');
+  const evidenceRoot = requireValue(readFlag('--evidence-root'), '--evidence-root');
+  const plan = JSON.parse(await readFile(path.resolve(selectedPlanPath), 'utf8'));
+  const approval = JSON.parse(await readFile(path.resolve(selectedApprovalPath), 'utf8'));
+  const evidence = await checkEvidenceFiles({ records: plan.sources, root: evidenceRoot });
+  if (evidence.status !== 'checked' || evidence.failures.length) {
+    throw new Error(`source-set approval requires a clean evidence check: ${JSON.stringify(evidence)}`);
+  }
+  const approved = approveSourceSetReviewPlan({ plan, approval });
+  const output = `${JSON.stringify({ ...approved, evidence }, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
+  process.exit(0);
+}
+
+if (command === 'project' && args[1] === 'materialize-source-set') {
+  const selectedSourceSetPath = requireValue(readFlag('--source-set'), '--source-set');
+  const selectionReason = requireValue(readFlag('--reason'), '--reason');
+  const sourceSet = JSON.parse(await readFile(path.resolve(selectedSourceSetPath), 'utf8'));
+  const plan = buildSourceSetMaterializationPlan({
+    sourceSet,
+    projectId: readFlag('--project-id'),
+    projectTitle: readFlag('--project-title'),
+    projectRoot: readFlag('--project-root'),
+    selectionReason,
+    snapshotId: readFlag('--snapshot-id'),
+  });
+  const output = `${JSON.stringify(plan, null, 2)}\n`;
   if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
   else process.stdout.write(output);
   process.exit(0);

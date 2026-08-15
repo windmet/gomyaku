@@ -14,3 +14,5 @@ export { buildProjectMaterializationPlan } from './catalog/materialize/materiali
 export { buildAcquisitionPlan } from './catalog/acquire/acquisitionPlan.mjs';
 export { assertWorkState, validateWorkState, validateWorkStateRows } from './catalog/workstate/workState.mjs';
 export { buildSourceSetReviewPlan } from './catalog/sourceset/sourceSetReview.mjs';
+export { approveSourceSetReviewPlan } from './catalog/sourceset/approveSourceSet.mjs';
+export { buildSourceSetMaterializationPlan } from './catalog/materialize/materializeSourceSet.mjs';

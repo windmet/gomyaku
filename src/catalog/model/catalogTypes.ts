@@ -193,9 +193,19 @@ export interface SourceSetReviewPlan {
     evidence: string[];
   }>;
   review: {
-    status: 'pending';
-    requiresHumanConfirmation: true;
+    status: 'pending' | 'approved';
+    requiresHumanConfirmation: boolean;
     workStateMutation: 'separate-reviewed-step';
+    approvedBy?: string;
+    approvedAt?: string;
+    confirmationReason?: string;
+  };
+  approval?: {
+    planId: string;
+    confirmedSourceIds: string[];
+    reviewedBy: string;
+    reviewedAt: string;
+    reason: string;
   };
   nextSteps: string[];
 }
@@ -212,8 +222,10 @@ export interface ProjectMaterializationPlan {
   kind: 'project-materialization-plan';
   planId: string;
   origin: {
-    catalogId: string;
-    catalogSource: string;
+    catalogId?: string;
+    catalogSource?: string;
+    sourceSetPlanId?: string;
+    sourceSetProjectId?: string;
     mediaItemId?: string;
     mediaItemIds?: string[];
     snapshotId?: string;
@@ -231,10 +243,16 @@ export interface ProjectMaterializationPlan {
   classifications?: Array<Record<string, unknown> | null>;
   selection: {
     reason: string;
-    sourceSet: { kind: 'single' | 'multi'; mediaItemIds: string[] };
-    requiresReviewedSourceSet: true;
+    sourceSet: {
+      kind: 'single' | 'multi';
+      mediaItemIds?: string[];
+      sourceIds?: string[];
+      reviewPlanId?: string;
+    };
+    requiresReviewedSourceSet: boolean;
     requiresExplicitAcquisition: true;
     requiresEditorialAuthoring: true;
+    inference?: 'disabled';
   };
   nextSteps: string[];
 }

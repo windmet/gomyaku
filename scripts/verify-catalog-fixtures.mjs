@@ -21,6 +21,8 @@ import {
   validateWorkState,
   validateWorkStateRows,
   buildSourceSetReviewPlan,
+  approveSourceSetReviewPlan,
+  buildSourceSetMaterializationPlan,
 } from '../src/index.mjs';
 import {
   createCatalogWorkspacePaths,
@@ -303,6 +305,56 @@ try {
   sourceSetRejected = error.message.includes('workspace-relative');
 }
 if (!sourceSetRejected) throw new Error('source-set absolute evidence path was not rejected');
+const approvableSourceSet = buildSourceSetReviewPlan({
+  projectId: 'synthetic-approved-project',
+  selectionReason: 'Synthetic source set awaiting explicit approval',
+  sources: [
+    {
+      id: 'youtube:synthetic001',
+      provider: 'youtube',
+      externalId: 'synthetic001',
+      origin: 'catalog',
+      catalogItemId: 'youtube:synthetic001',
+      url: 'https://www.youtube.com/watch?v=synthetic001',
+      evidence: ['catalog/items.jsonl'],
+    },
+    {
+      id: 'x-space:synthetic-space',
+      provider: 'x-space',
+      externalId: 'synthetic-space',
+      origin: 'explicit',
+      url: 'https://x.com/i/spaces/synthetic-space',
+      urlEvidence: ['https://x.com/i/spaces/synthetic-space'],
+      evidence: ['project/source-set-notes.md'],
+    },
+  ],
+});
+const approvedSourceSet = approveSourceSetReviewPlan({
+  plan: approvableSourceSet,
+  approval: {
+    planId: approvableSourceSet.planId,
+    confirmedSourceIds: approvableSourceSet.sources.map((source) => source.id),
+    reviewedBy: 'synthetic-operator',
+    reviewedAt: '2026-08-15T00:00:00+00:00',
+    reason: 'Synthetic explicit confirmation of the complete source set',
+  },
+});
+if (approvedSourceSet.review.status !== 'approved'
+  || approvedSourceSet.review.requiresHumanConfirmation !== false
+  || approvedSourceSet.approval?.confirmedSourceIds.length !== 2) {
+  throw new Error('source-set approval artifact contract is incomplete');
+}
+const approvedSourceSetMaterialization = buildSourceSetMaterializationPlan({
+  sourceSet: approvedSourceSet,
+  projectId: 'synthetic-approved-project',
+  selectionReason: 'Synthetic approved source set materialization',
+});
+if (approvedSourceSetMaterialization.origin.sourceSetPlanId !== approvedSourceSet.planId
+  || approvedSourceSetMaterialization.sources?.length !== 2
+  || approvedSourceSetMaterialization.selection.requiresReviewedSourceSet !== false
+  || approvedSourceSetMaterialization.selection.inference !== 'disabled') {
+  throw new Error('approved source-set materialization contract is incomplete');
+}
 const acquisitionPlan = buildAcquisitionPlan({
   catalog: {
     id: 'synthetic-youtube',

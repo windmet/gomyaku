@@ -11,6 +11,8 @@ explicit source list + evidence
               ↓
 source-set-review-plan (pending)
               ↓ human confirmation
+approved source-set artifact
+              ↓
 Project materialization / Acquisition Plan
 ```
 
@@ -39,3 +41,35 @@ unresolved URL is still useful as a review queue, but cannot be treated as a
 complete source manifest until a human resolves it. With `--evidence-root`, the
 same command reports actual evidence files and rejects missing or escaped
 paths; without it, the evidence check is marked `not-run`.
+
+## Explicit approval
+
+Approval is a separate, auditable artifact. It must name the exact plan,
+repeat every source ID in the original order, and include the operator, an ISO
+timestamp, and a confirmation reason. The CLI requires a clean local evidence
+check and rejects unresolved URLs, missing sources, duplicate IDs, or an
+approval for a different plan.
+
+Approval input example:
+
+```json
+{
+  "planId": "source-set:komatsu36:youtube:...,x-space:...",
+  "confirmedSourceIds": ["youtube:...", "x-space:..."],
+  "reviewedBy": "operator-id",
+  "reviewedAt": "2026-08-15T00:00:00.000Z",
+  "reason": "Confirmed the complete source set for this Project"
+}
+```
+
+```text
+gomyaku project source-set-approve \
+  --plan source-set-review.json \
+  --approval source-set-approval.json \
+  --evidence-root E:\\GOMYAKU \
+  --out approved-source-set.json
+```
+
+The result keeps the original sources and evidence, changes only the review
+state to `approved`, and records the confirmation metadata. It does not mutate
+Work State or create a Project.
