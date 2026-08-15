@@ -276,6 +276,21 @@ export interface ProjectMaterializationPlan {
     requiresEditorialAuthoring: true;
     inference?: 'disabled';
   };
+  review?: {
+    status: 'approved';
+    requiresHumanConfirmation: false;
+    approvedBy: string;
+    approvedAt: string;
+    confirmationReason: string;
+  };
+  approval?: {
+    planId: string;
+    projectId: string;
+    confirmedMediaItemIds: string[];
+    reviewedBy: string;
+    reviewedAt: string;
+    reason: string;
+  };
   nextSteps: string[];
 }
 
@@ -285,8 +300,18 @@ export interface AcquisitionPlan {
   schemaVersion: 1;
   kind: 'acquisition-plan';
   planId: string;
-  origin: { catalogId: string; catalogSource: string };
-  selection: { reason: string; itemCount: number; artifactTypes: AcquisitionArtifact[] };
+  origin: { catalogId: string; catalogSource: string; materializationPlanId?: string };
+  selection: {
+    reason: string;
+    itemCount: number;
+    artifactTypes: AcquisitionArtifact[];
+    materializationApproval?: {
+      planId: string;
+      projectId: string;
+      reviewedBy: string;
+      reviewedAt: string;
+    };
+  };
   requests: Array<{
     item: Record<string, unknown>;
     classification: Record<string, unknown> | null;

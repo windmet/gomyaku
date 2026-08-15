@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-22 now extend the
+Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-24 now extend the
 generic slice with read-only query and explicit materialization plans. The
 workflow remains offline-testable in this repository; CAT-09 real acceptance
 is local-only.
@@ -66,6 +66,10 @@ is local-only.
   requires an exact approval artifact, clean evidence, a non-existing backup
   path, and an explicit `--apply-reviewed` flag; unrelated rows and sections
   are preserved.
+- CAT-23: Catalog Project materialization plans have a separate approval
+  artifact for Project ID and exact ordered source IDs.
+- CAT-24: Acquisition Plans can bind to an approved materialization plan and
+  reject a pending or mismatched source selection.
 
 ## Deliberately not included yet
 

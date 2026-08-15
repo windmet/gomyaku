@@ -17,6 +17,7 @@ import {
   queryCatalog,
   renderCatalogQueryMarkdown,
   buildProjectMaterializationPlan,
+  approveMaterializationPlan,
   buildAcquisitionPlan,
   verifyAcquisitionReceipt,
   buildWorkStateUpdatePlan,
@@ -241,6 +242,52 @@ if (materializationPlan.kind !== 'project-materialization-plan'
   || materializationPlan.selection.sourceSet.kind !== 'single'
   || materializationPlan.selection.requiresExplicitAcquisition !== true) {
   throw new Error('project materialization plan contract is incomplete');
+}
+const approvedMaterializationPlan = approveMaterializationPlan({
+  plan: materializationPlan,
+  approval: {
+    planId: materializationPlan.planId,
+    projectId: materializationPlan.project.id,
+    confirmedMediaItemIds: [materializationPlan.origin.mediaItemId],
+    reviewedBy: 'synthetic-operator',
+    reviewedAt: '2026-08-15T00:00:00.000Z',
+    reason: 'Synthetic explicit confirmation of the selected Project source',
+  },
+});
+if (approvedMaterializationPlan.selection.requiresReviewedSourceSet !== false
+  || approvedMaterializationPlan.review?.status !== 'approved'
+  || approvedMaterializationPlan.approval?.confirmedMediaItemIds.length !== 1) {
+  throw new Error('materialization approval contract is incomplete');
+}
+let pendingMaterializationRejected = false;
+try {
+  buildAcquisitionPlan({
+    catalog: { id: 'synthetic-youtube', provider: 'youtube', source: 'https://www.youtube.com/@synthetic/streams' },
+    items: firstMerge.items,
+    classifications: firstClassification.classifications,
+    itemIds: ['youtube:synthetic001'],
+    artifacts: ['audio'],
+    planId: 'synthetic-pending-materialization-acquisition',
+    selectionReason: 'pending materialization must be rejected',
+    materializationPlan,
+  });
+} catch (error) {
+  pendingMaterializationRejected = error.message.includes('approved materialization plan');
+}
+if (!pendingMaterializationRejected) throw new Error('pending materialization plan was accepted for acquisition');
+const approvedAcquisitionPlan = buildAcquisitionPlan({
+  catalog: { id: 'synthetic-youtube', provider: 'youtube', source: 'https://www.youtube.com/@synthetic/streams' },
+  items: firstMerge.items,
+  classifications: firstClassification.classifications,
+  itemIds: ['youtube:synthetic001'],
+  artifacts: ['audio'],
+  planId: 'synthetic-approved-materialization-acquisition',
+  selectionReason: 'Synthetic acquisition bound to approved materialization',
+  materializationPlan: approvedMaterializationPlan,
+});
+if (approvedAcquisitionPlan.origin.materializationPlanId !== approvedMaterializationPlan.planId
+  || approvedAcquisitionPlan.selection.materializationApproval?.projectId !== materializationPlan.project.id) {
+  throw new Error('acquisition/materialization approval binding is incomplete');
 }
 const multiMaterializationPlan = buildProjectMaterializationPlan({
   catalog: {

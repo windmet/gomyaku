@@ -41,6 +41,22 @@ invent Event records, or publish to Qianqingtie. A local Workspace adapter may
 consume the plan only after source-set review and explicit acquisition. No
 local path is emitted unless the caller supplies `--project-root`.
 
+## Explicit materialization approval
+
+The plan's source selection is pending until a human confirms the exact Project
+ID and ordered Catalog Media Item IDs. Approval is a separate artifact:
+
+```text
+gomyaku project materialize-approve \
+  --plan materialization-plan.json \
+  --approval materialization-approval.json \
+  --out approved-materialization-plan.json
+```
+
+The approved plan records reviewer metadata and changes only
+`selection.requiresReviewedSourceSet` to `false`. It still does not create a
+directory, download, run ASR, or update Work State.
+
 ## Approved cross-provider source sets
 
 For a Project whose sources span providers (for example YouTube plus X

@@ -25,6 +25,7 @@ export const buildAcquisitionPlan = ({
   artifacts = ['audio'],
   planId,
   selectionReason,
+  materializationPlan,
 } = {}) => {
   const catalogId = requiredString(catalog?.id, 'catalog.id');
   const catalogProvider = requiredString(catalog?.provider, 'catalog.provider');
@@ -37,6 +38,30 @@ export const buildAcquisitionPlan = ({
   }
   const selectedPlanId = requiredString(planId, 'planId');
   const reason = requiredString(selectionReason, 'selectionReason');
+  let materializationApproval;
+  if (materializationPlan !== undefined) {
+    if (!materializationPlan || materializationPlan.kind !== 'project-materialization-plan') {
+      throw new Error('materializationPlan.kind must be project-materialization-plan');
+    }
+    if (materializationPlan.selection?.requiresReviewedSourceSet !== false
+      || materializationPlan.review?.status !== 'approved'
+      || materializationPlan.approval?.planId !== materializationPlan.planId) {
+      throw new Error('an approved materialization plan is required');
+    }
+    const approvedIds = materializationPlan.origin?.mediaItemIds
+      || (materializationPlan.origin?.mediaItemId ? [materializationPlan.origin.mediaItemId] : []);
+    const sortedApprovedIds = [...approvedIds].sort();
+    if (sortedApprovedIds.length !== selectedIds.length
+      || sortedApprovedIds.some((id, index) => id !== selectedIds[index])) {
+      throw new Error('acquisition item ids must exactly match the approved materialization plan');
+    }
+    materializationApproval = {
+      planId: materializationPlan.planId,
+      projectId: materializationPlan.project.id,
+      reviewedBy: materializationPlan.approval.reviewedBy,
+      reviewedAt: materializationPlan.approval.reviewedAt,
+    };
+  }
   const itemsById = new Map(items.map((item) => [item.id, item]));
   const classificationsByItem = new Map(classifications.map((classification) => [classification.item, classification]));
   const workStateByItem = new Map(workState.map((state) => [state.item, state]));
@@ -72,11 +97,16 @@ export const buildAcquisitionPlan = ({
     schemaVersion: 1,
     kind: 'acquisition-plan',
     planId: selectedPlanId,
-    origin: { catalogId, catalogSource },
+    origin: {
+      catalogId,
+      catalogSource,
+      ...(materializationApproval ? { materializationPlanId: materializationApproval.planId } : {}),
+    },
     selection: {
       reason,
       itemCount: requests.length,
       artifactTypes: selectedArtifacts,
+      ...(materializationApproval ? { materializationApproval } : {}),
     },
     requests,
     execution: {

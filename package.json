@@ -30,6 +30,7 @@
     "./catalog/export": "./src/catalog/export/catalogExport.mjs",
     "./catalog/query": "./src/catalog/query/queryCatalog.mjs",
     "./catalog/materialize": "./src/catalog/materialize/materializeProject.mjs",
+    "./catalog/materialize-approval": "./src/catalog/materialize/approveMaterializationPlan.mjs",
     "./catalog/acquire": "./src/catalog/acquire/acquisitionPlan.mjs",
     "./catalog/acquire-receipt": "./src/catalog/acquire/acquisitionReceipt.mjs",
     "./catalog/work-state": "./src/catalog/workstate/workState.mjs",

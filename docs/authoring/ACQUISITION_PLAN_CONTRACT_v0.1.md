@@ -30,6 +30,24 @@ gomyaku acquire plan \
   --out plan.json
 ```
 
+For a selected Project, pass its approved materialization plan so the
+Acquisition Plan cannot silently target a different source set:
+
+```text
+gomyaku acquire plan \
+  --workspace <path> \
+  --item youtube:example \
+  --artifact audio,chat,comments \
+  --plan-id example-r1 \
+  --reason "approved Project rehearsal" \
+  --materialization-plan approved-materialization-plan.json \
+  --out plan.json
+```
+
+When supplied, the CLI requires the materialization approval to be complete and
+the selected item IDs to match exactly. Existing callers without this flag
+remain plan-only for backward compatibility.
+
 The plan does not contain cookies, browser profiles, local download paths or
 raw provider JSON. It does not call yt-dlp, modify `work-state.jsonl`, run
 Whisper, or publish anything. A later local executor must be a separate,
