@@ -1,4 +1,7 @@
 const projectIdPattern = /^[a-z0-9][a-z0-9-]*$/;
+const sourceIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
+const absoluteLocalPath = /^[A-Za-z]:[\\/]|^\\\\/;
+const parentTraversal = /(^|[\\/])\.\.([\\/]|$)/;
 const requiredString = (value, label) => {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${label} is required`);
   return value.trim();
@@ -7,11 +10,16 @@ const requiredString = (value, label) => {
 const sourceRecord = (source, index) => {
   if (!source || typeof source !== 'object' || Array.isArray(source)) throw new Error(`source-set.sources[${index}] must be an object`);
   const id = requiredString(source.id, `source-set.sources[${index}].id`);
+  if (!sourceIdPattern.test(id)) throw new Error(`${id} is not a stable source id`);
   const provider = requiredString(source.provider, `source-set.sources[${index}].provider`);
   const externalId = requiredString(source.externalId, `source-set.sources[${index}].externalId`);
   const url = requiredString(source.url, `source-set.sources[${index}].url`);
+  if (!/^https?:\/\//i.test(url)) throw new Error(`${id} must have an HTTP(S) URL`);
   if (source.urlStatus !== 'provided') throw new Error(`${id} must have a provided URL`);
   if (!Array.isArray(source.evidence) || !source.evidence.length) throw new Error(`${id} must retain local evidence`);
+  if (source.evidence.some((entry) => typeof entry !== 'string' || absoluteLocalPath.test(entry) || parentTraversal.test(entry))) {
+    throw new Error(`${id} evidence must be workspace-relative`);
+  }
   return {
     id,
     provider,
@@ -37,12 +45,21 @@ export const buildSourceSetMaterializationPlan = ({
   if (sourceSet.kind !== 'source-set-review-plan' || sourceSet.review?.status !== 'approved') {
     throw new Error('an approved source-set review plan is required');
   }
+  if (sourceSet.review.requiresHumanConfirmation !== false
+    || sourceSet.approval?.planId !== sourceSet.planId
+    || !Array.isArray(sourceSet.approval.confirmedSourceIds)) {
+    throw new Error('source-set approval metadata is incomplete');
+  }
   const selectedProjectId = requiredString(projectId || sourceSet.project?.id, 'projectId');
   if (!projectIdPattern.test(selectedProjectId)) throw new Error(`projectId is not a stable slug: ${selectedProjectId}`);
   const sources = sourceSet.sources.map(sourceRecord);
   if (!sources.length) throw new Error('sourceSet.sources must be non-empty');
   const sourceIds = sources.map((source) => source.id);
   if (new Set(sourceIds).size !== sourceIds.length) throw new Error('source-set sources must be unique');
+  if (sourceSet.approval.confirmedSourceIds.length !== sourceIds.length
+    || sourceSet.approval.confirmedSourceIds.some((id, index) => id !== sourceIds[index])) {
+    throw new Error('source-set approval does not cover the exact source order');
+  }
   const singleSource = sources.length === 1;
   const selectedTitle = projectTitle || sourceSet.project?.title || (singleSource ? sources[0].title : `${sources.length} approved sources`);
   return {
