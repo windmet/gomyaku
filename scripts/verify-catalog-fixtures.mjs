@@ -18,6 +18,8 @@ import {
   renderCatalogQueryMarkdown,
   buildProjectMaterializationPlan,
   buildAcquisitionPlan,
+  validateWorkState,
+  validateWorkStateRows,
 } from '../src/index.mjs';
 import {
   createCatalogWorkspacePaths,
@@ -152,20 +154,37 @@ if (!markdown.includes('| Title |') || !markdown.includes('Synthetic archive str
 }
 const syntheticWorkState = [
   {
+    schemaVersion: 1,
     item: 'youtube:synthetic001',
     audio: { status: 'downloaded' },
     transcript: { status: 'missing' },
     project: { status: 'materialized' },
-    publication: { candidate: true },
+    publication: { status: 'draft', candidate: true },
+    evidence: ['fixtures/synthetic001/project.yaml'],
   },
   {
+    schemaVersion: 1,
     item: 'youtube:synthetic002',
     audio: { status: 'missing' },
     transcript: { status: 'baseline-complete' },
     project: { status: 'not-materialized' },
-    publication: { candidate: false },
+    publication: { status: 'not-started', candidate: false },
+    evidence: ['fixtures/synthetic002/project.yaml'],
   },
 ];
+if (!validateWorkState(syntheticWorkState[0]).valid
+  || !validateWorkStateRows(syntheticWorkState, { knownItemIds: new Set(firstMerge.items.map((item) => item.id)) }).valid) {
+  throw new Error('synthetic Work State contract is invalid');
+}
+const invalidWorkState = validateWorkStateRows([
+  { schemaVersion: 1, item: 'youtube:synthetic001', evidence: [] },
+  { schemaVersion: 1, item: 'youtube:synthetic001', evidence: ['C:\\private\\state.json'] },
+]);
+if (invalidWorkState.valid
+  || !invalidWorkState.failures.some((failure) => failure.includes('evidence must be a non-empty array'))
+  || !invalidWorkState.failures.some((failure) => failure.includes('duplicate Work State item'))) {
+  throw new Error('invalid Work State rows were not rejected');
+}
 const allQuery = queryCatalog({
   items: firstMerge.items,
   classifications: firstClassification.classifications,

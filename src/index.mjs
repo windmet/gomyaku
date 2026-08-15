@@ -12,3 +12,4 @@ export { buildCatalogRows, renderCatalogMarkdown } from './catalog/export/catalo
 export { normalizeCatalogQuery, queryCatalog, renderCatalogQueryMarkdown } from './catalog/query/queryCatalog.mjs';
 export { buildProjectMaterializationPlan } from './catalog/materialize/materializeProject.mjs';
 export { buildAcquisitionPlan } from './catalog/acquire/acquisitionPlan.mjs';
+export { assertWorkState, validateWorkState, validateWorkStateRows } from './catalog/workstate/workState.mjs';

@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-12 now extend the
+Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-13 now extend the
 generic slice with read-only query and explicit materialization plans. The
 workflow remains offline-testable in this repository; CAT-09 real acceptance
 is local-only.
@@ -39,6 +39,8 @@ is local-only.
 - CAT-12: explicit Acquisition Plans list requested audio/video/chat/comments
   artifacts and existing local status without executing a downloader or
   mutating Work State.
+- CAT-13: Work State rows have an evidence-first schema, duplicate/reference
+  validation, a read-only CLI check, and a generic package export.
 
 ## Deliberately not included yet
 

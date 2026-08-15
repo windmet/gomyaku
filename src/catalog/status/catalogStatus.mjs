@@ -1,5 +1,6 @@
 import { validateClassification } from '../classify/classifyCatalog.mjs';
 import { validateMediaItem } from '../model/catalogPackage.mjs';
+import { validateWorkStateRows } from '../workstate/workState.mjs';
 
 const increment = (record, key) => {
   const label = key ?? 'unclassified';
@@ -32,9 +33,8 @@ export const validateCatalogData = ({ items, classifications = [], workState = [
     if (classificationIds.has(classification.item)) failures.push(`duplicate Classification item: ${classification.item}`);
     classificationIds.add(classification.item);
   }
-  for (const state of workState) {
-    if (!itemIds.has(state.item)) failures.push(`Work State references unknown item: ${state.item}`);
-  }
+  const workStateResult = validateWorkStateRows(workState, { knownItemIds: itemIds });
+  failures.push(...workStateResult.failures);
   findLocalPaths(items, '$.items', failures);
   findLocalPaths(classifications, '$.classifications', failures);
   return { valid: failures.length === 0, failures };

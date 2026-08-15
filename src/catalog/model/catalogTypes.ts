@@ -146,7 +146,27 @@ export interface CatalogQuery {
 export interface CatalogQueryRow {
   item: MediaItem;
   classification: CatalogClassification | null;
-  workState: Record<string, unknown> | null;
+  workState: CatalogWorkState | null;
+}
+
+export interface CatalogWorkStateSection {
+  status: string;
+  [key: string]: unknown;
+}
+
+export interface CatalogWorkState {
+  schemaVersion: 1;
+  item: string;
+  metadata?: CatalogWorkStateSection;
+  audio?: CatalogWorkStateSection;
+  video?: CatalogWorkStateSection;
+  chat?: CatalogWorkStateSection;
+  comments?: CatalogWorkStateSection;
+  transcript?: CatalogWorkStateSection;
+  project?: CatalogWorkStateSection;
+  publication?: CatalogWorkStateSection & { candidate?: boolean };
+  sourceEngineering?: CatalogWorkStateSection;
+  evidence: string[];
 }
 
 export interface CatalogQueryResult {

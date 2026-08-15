@@ -9,6 +9,7 @@ import { buildCatalogRows, renderCatalogMarkdown } from '../catalog/export/catal
 import { queryCatalog, renderCatalogQueryMarkdown } from '../catalog/query/queryCatalog.mjs';
 import { buildProjectMaterializationPlan } from '../catalog/materialize/materializeProject.mjs';
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
+import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
 import {
   createCatalogWorkspacePaths,
   initializeCatalogWorkspace,
@@ -45,6 +46,7 @@ const usage = () => {
   console.log('  gomyaku catalog sync --provider youtube --source <url> --workspace <path> --observation-file <yt-dlp.jsonl>');
   console.log('  gomyaku catalog classify --workspace <path> [--rules <rules.yaml>] [--overrides <overrides.yaml>]');
   console.log('  gomyaku catalog status --workspace <path>');
+  console.log('  gomyaku catalog validate-work-state --workspace <path> [--out <report.json>]');
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id> --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
@@ -163,6 +165,24 @@ const catalogCommand = async () => {
     );
     console.log(JSON.stringify(summary, null, 2));
     if (!summary.dataQuality.valid) process.exitCode = 1;
+    return;
+  }
+  if (subcommand === 'validate-work-state') {
+    const selectedWorkspace = requireValue(workspacePath, '--workspace');
+    const paths = createCatalogWorkspacePaths(selectedWorkspace);
+    const items = await readMediaItems(paths.items);
+    const workState = await readJsonl(paths.workState, { label: 'work-state.jsonl' });
+    const result = validateWorkStateRows(workState, { knownItemIds: new Set(items.map((item) => item.id)) });
+    const report = {
+      workspace: paths.root,
+      itemCount: items.length,
+      workStateCount: workState.length,
+      ...result,
+    };
+    const output = `${JSON.stringify(report, null, 2)}\n`;
+    if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+    else process.stdout.write(output);
+    if (!result.valid) process.exitCode = 1;
     return;
   }
   if (subcommand === 'export') {
