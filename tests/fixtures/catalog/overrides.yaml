@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "overrides": {
+    "youtube:synthetic002": {
+      "primaryCategory": "event",
+      "tags": ["reviewed-fixture"],
+      "reason": "synthetic manual review fixture"
+    }
+  }
+}

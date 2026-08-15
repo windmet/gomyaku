@@ -1,5 +1,6 @@
 import {
   assertMediaItem,
+  classifyCatalog,
   buildYtDlpDiscoveryArgs,
   compileProject,
   createYouTubeCatalogProvider,
@@ -18,6 +19,7 @@ for (const [name, value] of Object.entries({
   validateArchivePackage,
   verifySourceSet,
   assertMediaItem,
+  classifyCatalog,
   buildYtDlpDiscoveryArgs,
   createYouTubeCatalogProvider,
   mergeMediaItems,

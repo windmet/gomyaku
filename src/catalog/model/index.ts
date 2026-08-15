@@ -1,6 +1,8 @@
 export type {
   AvailabilityStatus,
   CatalogDescriptor,
+  CatalogClassification,
+  CatalogClassificationReport,
   CatalogSyncReport,
   CatalogWorkspacePaths,
   LiveStatus,

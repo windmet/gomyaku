@@ -25,6 +25,7 @@
     "./catalog/model": "./src/catalog/model/catalogPackage.mjs",
     "./catalog/normalize": "./src/catalog/normalize/normalizeMediaItem.mjs",
     "./catalog/providers/youtube": "./src/catalog/providers/youtube/ytDlpProvider.mjs",
+    "./catalog/classify": "./src/catalog/classify/classifyCatalog.mjs",
     "./catalog/workspace": "./src/catalog/workspace/catalogWorkspace.mjs"
   },
   "devDependencies": {

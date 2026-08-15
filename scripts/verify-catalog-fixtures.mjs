@@ -4,6 +4,7 @@ import path from 'node:path';
 import {
   assertMediaItem,
   buildYtDlpDiscoveryArgs,
+  classifyCatalog,
   createYouTubeCatalogProvider,
   mergeMediaItems,
   normalizeMediaItem,
@@ -19,6 +20,8 @@ import {
 
 const fixturePath = path.resolve('tests/fixtures/catalog/youtube-flat.jsonl');
 const fixtureText = await readFile(fixturePath, 'utf8');
+const rulesDocument = JSON.parse(await readFile(path.resolve('tests/fixtures/catalog/rules.yaml'), 'utf8'));
+const overridesDocument = JSON.parse(await readFile(path.resolve('tests/fixtures/catalog/overrides.yaml'), 'utf8'));
 const observations = parseYtDlpJsonLines(fixtureText);
 if (observations.length !== 2) throw new Error(`expected 2 synthetic observations, got ${observations.length}`);
 
@@ -57,6 +60,46 @@ if (firstMerge.report.added !== 2 || firstMerge.report.scanned !== 2) throw new 
 const secondMerge = mergeMediaItems(firstMerge.items, discovered);
 if (secondMerge.report.unchanged !== 2 || secondMerge.report.added !== 0) throw new Error('repeat catalog merge is not idempotent');
 
+const firstClassification = classifyCatalog({
+  items: firstMerge.items,
+  rulesDocument,
+  overridesDocument,
+});
+if (firstClassification.report.new !== 2) throw new Error('initial classification diff must report two new items');
+if (firstClassification.report.overridden !== 1) throw new Error('manual override did not win over rules');
+if (firstClassification.report.unclassified !== 0 || firstClassification.report.conflict !== 0) {
+  throw new Error('synthetic classification coverage is incomplete');
+}
+const streamClassification = firstClassification.classifications.find((item) => item.item === 'youtube:synthetic001');
+if (streamClassification.primaryCategory !== 'radio' || streamClassification.series?.id !== 'synthetic-radio') {
+  throw new Error('rule-based series classification failed');
+}
+const videoClassification = firstClassification.classifications.find((item) => item.item === 'youtube:synthetic002');
+if (videoClassification.primaryCategory !== 'event' || videoClassification.classification.source !== 'override') {
+  throw new Error('reviewed override was not applied');
+}
+const repeatedClassification = classifyCatalog({
+  items: firstMerge.items,
+  rulesDocument,
+  overridesDocument,
+  existing: firstClassification.classifications,
+});
+if (repeatedClassification.report.unchanged !== 2 || repeatedClassification.diff.length !== 0) {
+  throw new Error('repeat classification is not deterministic');
+}
+const conflictClassification = classifyCatalog({
+  items: [firstMerge.items[0]],
+  rulesDocument: {
+    schemaVersion: 1,
+    rules: [
+      { id: 'conflict-a', priority: 50, when: { provider: 'youtube' }, set: { primaryCategory: 'one' } },
+      { id: 'conflict-b', priority: 50, when: { provider: 'youtube' }, set: { primaryCategory: 'two' } },
+    ],
+  },
+  overridesDocument: { schemaVersion: 1, overrides: {} },
+});
+if (conflictClassification.report.conflict !== 1) throw new Error('same-priority scalar conflict was not surfaced');
+
 const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'gomyaku-catalog-fixture-'));
 try {
   const descriptor = {
@@ -75,6 +118,7 @@ try {
   if (JSON.stringify(roundTrip) !== JSON.stringify(firstMerge.items)) throw new Error('items.jsonl round-trip changed data');
   const layout = createCatalogWorkspacePaths(tempRoot);
   if (layout.raw === layout.generated) throw new Error('raw and generated workspace boundaries collapsed');
+  if (!layout.rules.endsWith('rules.yaml')) throw new Error('workspace rules path is missing');
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }

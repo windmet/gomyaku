@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "synthetic-stream-series",
+      "priority": 100,
+      "when": {"titleContains": ["archive stream"]},
+      "set": {
+        "primaryCategory": "radio",
+        "series": {"id": "synthetic-radio", "label": "Synthetic Radio"}
+      },
+      "add": {"format": ["solo"]}
+    },
+    {
+      "id": "synthetic-video",
+      "priority": 80,
+      "when": {"mediaType": ["video"]},
+      "set": {"primaryCategory": "misc"}
+    }
+  ]
+}

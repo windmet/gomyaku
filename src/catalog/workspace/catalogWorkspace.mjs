@@ -11,6 +11,7 @@ export const createCatalogWorkspacePaths = (workspaceRoot) => {
     descriptor: path.join(root, 'catalog.yaml'),
     items: path.join(root, 'items.jsonl'),
     classifications: path.join(root, 'classifications.jsonl'),
+    rules: path.join(root, 'rules.yaml'),
     overrides: path.join(root, 'overrides.yaml'),
     workState: path.join(root, 'work-state.jsonl'),
     raw: path.join(root, 'raw', 'yt-dlp'),
@@ -47,7 +48,8 @@ export const initializeCatalogWorkspace = async ({ workspace, descriptor }) => {
   await writeIfMissing(paths.descriptor, serializeDescriptorYaml(descriptor));
   await writeIfMissing(paths.items, emptyJsonl);
   await writeIfMissing(paths.classifications, emptyJsonl);
-  await writeIfMissing(paths.overrides, '# Manual overrides are workspace-local.\n');
+  await writeIfMissing(paths.rules, '{\n  "schemaVersion": 1,\n  "rules": []\n}\n');
+  await writeIfMissing(paths.overrides, '{\n  "schemaVersion": 1,\n  "overrides": {}\n}\n');
   await writeIfMissing(paths.workState, emptyJsonl);
   return paths;
 };

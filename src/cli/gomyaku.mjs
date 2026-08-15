@@ -3,10 +3,13 @@ import path from 'node:path';
 import { compileProject } from '../compiler/compileProject.mjs';
 import { createYouTubeCatalogProvider } from '../catalog/providers/youtube/ytDlpProvider.mjs';
 import { mergeMediaItems } from '../catalog/sync/mergeCatalog.mjs';
+import { classifyCatalog } from '../catalog/classify/classifyCatalog.mjs';
 import {
   createCatalogWorkspacePaths,
   initializeCatalogWorkspace,
+  readJsonl,
   readMediaItems,
+  writeJsonl,
   writeMediaItems,
 } from '../catalog/workspace/catalogWorkspace.mjs';
 import { validateArchivePackage } from '../validation/projectPackage.mjs';
@@ -23,12 +26,15 @@ const workspacePath = readFlag('--workspace');
 const source = readFlag('--source');
 const provider = readFlag('--provider');
 const observationFile = readFlag('--observation-file');
+const rulesFile = readFlag('--rules');
+const overridesFile = readFlag('--overrides');
 
 const usage = () => {
   console.log('Usage:');
   console.log('  gomyaku validate|compile --input <canonical-package.json> [--out <portable-package.json>]');
   console.log('  gomyaku catalog init --provider <provider> --source <url> --workspace <path> [--label <label>]');
   console.log('  gomyaku catalog sync --provider youtube --source <url> --workspace <path> --observation-file <yt-dlp.jsonl>');
+  console.log('  gomyaku catalog classify --workspace <path> [--rules <rules.yaml>] [--overrides <overrides.yaml>]');
 };
 
 const requireValue = (value, label) => {
@@ -38,6 +44,14 @@ const requireValue = (value, label) => {
     process.exit(2);
   }
   return value;
+};
+
+const readJsonCompatibleYaml = async (filePath, label) => {
+  try {
+    return JSON.parse(await readFile(filePath, 'utf8'));
+  } catch (error) {
+    throw new Error(`${label} must be JSON-compatible YAML: ${error.message}`);
+  }
 };
 
 const catalogCommand = async () => {
@@ -84,6 +98,28 @@ const catalogCommand = async () => {
     const merged = mergeMediaItems(existing, incoming);
     await writeMediaItems(paths.items, merged.items);
     console.log(JSON.stringify({ ...merged.report, itemCount: merged.items.length }, null, 2));
+    return;
+  }
+  if (subcommand === 'classify') {
+    const selectedWorkspace = requireValue(workspacePath, '--workspace');
+    const paths = createCatalogWorkspacePaths(selectedWorkspace);
+    const items = await readMediaItems(paths.items);
+    const rulesDocument = await readJsonCompatibleYaml(path.resolve(rulesFile || paths.rules), 'rules');
+    const overridesDocument = await readJsonCompatibleYaml(path.resolve(overridesFile || paths.overrides), 'overrides');
+    let existing = [];
+    try {
+      existing = await readJsonl(paths.classifications, { label: 'classifications.jsonl' });
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    const result = classifyCatalog({ items, rulesDocument, overridesDocument, existing });
+    await writeJsonl(paths.classifications, result.classifications);
+    await writeFile(
+      path.join(paths.generated, 'classification-diff.json'),
+      `${JSON.stringify({ report: result.report, diff: result.diff }, null, 2)}\n`,
+      'utf8',
+    );
+    console.log(JSON.stringify(result.report, null, 2));
     return;
   }
   usage();
