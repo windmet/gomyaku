@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-16 now extend the
+Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-17 now extend the
 generic slice with read-only query and explicit materialization plans. The
 workflow remains offline-testable in this repository; CAT-09 real acceptance
 is local-only.
@@ -48,6 +48,8 @@ is local-only.
   cross-provider sources with unresolved URLs allowed and inference disabled.
 - CAT-16: the local Work State CLI resolves evidence files inside the workspace
   and rejects missing or symlink-escaped evidence without mutating state.
+- CAT-17: Work State and Source Set Review share the same explicit local
+  evidence-file gate and report checked/missing counts.
 
 ## Deliberately not included yet
 

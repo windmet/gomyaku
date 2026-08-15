@@ -27,10 +27,13 @@ gomyaku project source-set-plan \
   --sources komatsu36-source-set.json \
   --project-id komatsu36 \
   --reason "Existing local source evidence requires manual set review" \
+  --evidence-root E:\\GOMYAKU \
   --out source-set-review.json
 ```
 
 The command is read-only. It does not attach a source to a Project, update
 Work State, download media, run ASR, or publish. A source-set plan with an
 unresolved URL is still useful as a review queue, but cannot be treated as a
-complete source manifest until a human resolves it.
+complete source manifest until a human resolves it. With `--evidence-root`, the
+same command reports actual evidence files and rejects missing or escaped
+paths; without it, the evidence check is marked `not-run`.

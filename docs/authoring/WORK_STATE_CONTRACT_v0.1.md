@@ -45,7 +45,9 @@ Catalog item to have a Work State row.
   JSON report. Without `--evidence-root`, it reports structural validation only
   and marks the evidence check `not-run`.
 
-The generic package exports the structural validators at
+The local Work State and Source Set Review CLIs use the same evidence-file
+gate, so a checked report can be compared across both workflows. The generic
+package exports the structural validators at
 `gomyaku/catalog/work-state`. No validator writes Work State or executes an
 acquisition plan; actual file existence is intentionally a local CLI gate.
 

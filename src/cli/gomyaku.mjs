@@ -1,4 +1,4 @@
-import { readFile, realpath, stat, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { compileProject } from '../compiler/compileProject.mjs';
 import { createYouTubeCatalogProvider } from '../catalog/providers/youtube/ytDlpProvider.mjs';
@@ -11,6 +11,7 @@ import { buildProjectMaterializationPlan } from '../catalog/materialize/material
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
 import { buildSourceSetReviewPlan } from '../catalog/sourceset/sourceSetReview.mjs';
+import { checkEvidenceFiles } from '../catalog/evidence/evidenceFiles.mjs';
 import {
   createCatalogWorkspacePaths,
   initializeCatalogWorkspace,
@@ -52,7 +53,7 @@ const usage = () => {
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
-  console.log('  gomyaku project source-set-plan --sources <sources.json> --project-id <slug> --reason <text> [--out <path>]');
+  console.log('  gomyaku project source-set-plan --sources <sources.json> --project-id <slug> --reason <text> [--evidence-root <workspace-root>] [--out <path>]');
   console.log('  gomyaku acquire plan --workspace <path> --item <media-id>[,<media-id>] --artifact audio,chat,comments --plan-id <id> --reason <text> [--out <path>]');
 };
 
@@ -176,51 +177,14 @@ const catalogCommand = async () => {
     const items = await readMediaItems(paths.items);
     const workState = await readJsonl(paths.workState, { label: 'work-state.jsonl' });
     const result = validateWorkStateRows(workState, { knownItemIds: new Set(items.map((item) => item.id)) });
-    const evidenceFailures = [];
-    let evidenceChecked = 0;
-    let evidenceMissing = 0;
-    const evidenceRootInput = readFlag('--evidence-root');
-    let evidenceRootPath;
-    if (evidenceRootInput) {
-      try {
-        evidenceRootPath = await realpath(path.resolve(evidenceRootInput));
-        for (const state of workState) {
-          if (!Array.isArray(state.evidence)) continue;
-          for (const evidence of state.evidence) {
-            if (typeof evidence !== 'string' || !evidence.trim()) continue;
-            evidenceChecked += 1;
-            const candidate = path.resolve(evidenceRootPath, evidence);
-            try {
-              const resolved = await realpath(candidate);
-              const relative = path.relative(evidenceRootPath, resolved);
-              if (relative.startsWith('..') || path.isAbsolute(relative)) {
-                evidenceFailures.push(`${state.item}: evidence escapes workspace: ${evidence}`);
-                evidenceMissing += 1;
-              } else {
-                await stat(resolved);
-              }
-            } catch {
-              evidenceFailures.push(`${state.item}: evidence file is missing: ${evidence}`);
-              evidenceMissing += 1;
-            }
-          }
-        }
-      } catch {
-        evidenceFailures.push(`evidence root is unavailable: ${evidenceRootInput}`);
-      }
-    }
+    const evidence = await checkEvidenceFiles({ records: workState, root: readFlag('--evidence-root') });
     const report = {
       workspace: paths.root,
       itemCount: items.length,
       workStateCount: workState.length,
-      valid: result.valid && evidenceFailures.length === 0,
-      failures: [...result.failures, ...evidenceFailures],
-      evidence: {
-        status: evidenceRootInput ? 'checked' : 'not-run',
-        root: evidenceRootPath || evidenceRootInput || null,
-        checked: evidenceChecked,
-        missing: evidenceMissing,
-      },
+      valid: result.valid && evidence.failures.length === 0,
+      failures: [...result.failures, ...evidence.failures],
+      evidence,
     };
     const output = `${JSON.stringify(report, null, 2)}\n`;
     if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
@@ -377,7 +341,8 @@ if (command === 'project' && args[1] === 'source-set-plan') {
     sources,
     selectionReason,
   });
-  const output = `${JSON.stringify(plan, null, 2)}\n`;
+  const evidence = await checkEvidenceFiles({ records: plan.sources, root: readFlag('--evidence-root') });
+  const output = `${JSON.stringify({ ...plan, evidence }, null, 2)}\n`;
   if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
   else process.stdout.write(output);
   process.exit(0);
