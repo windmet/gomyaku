@@ -82,6 +82,8 @@ is local-only.
 - CAT-28: a read-only Project execution preflight rejects pending or unbound
   plans and unsafe Project roots before any local production adapter receives
   them.
+- CAT-29: CLI validation failures propagate as non-zero process exit codes;
+  valid and invalid acquisition receipts are covered by command-level tests.
 
 ## Deliberately not included yet
 

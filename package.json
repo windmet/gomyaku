@@ -10,8 +10,9 @@
   "scripts": {
     "test": "node scripts/verify-fixtures.mjs && npm run test:catalog",
     "test:catalog": "node scripts/verify-catalog-fixtures.mjs",
+    "verify:cli": "node scripts/verify-cli-exit-codes.mjs",
     "verify:package": "node scripts/verify-package-surface.mjs",
-    "validate": "npm test && npm run verify:package && npm exec -- tsc --noEmit",
+    "validate": "npm test && npm run verify:package && npm run verify:cli && npm exec -- tsc --noEmit",
     "compile": "node src/cli/gomyaku.mjs compile"
   },
   "exports": {

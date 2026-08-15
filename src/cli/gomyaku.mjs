@@ -380,7 +380,7 @@ const catalogCommand = async () => {
 
 if (command === 'catalog') {
   await catalogCommand();
-  process.exit(0);
+  process.exit(process.exitCode ?? 0);
 }
 
 if (command === 'project' && args[1] === 'materialize') {
@@ -515,8 +515,7 @@ if (command === 'acquire' && args[1] === 'verify-receipt') {
   const output = `${JSON.stringify(report, null, 2)}\n`;
   if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
   else process.stdout.write(output);
-  if (!report.valid) process.exitCode = 1;
-  process.exit(0);
+  process.exit(report.valid ? 0 : 1);
 }
 
 if (command === 'acquire' && args[1] === 'receipt-template') {

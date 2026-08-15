@@ -109,3 +109,7 @@ gomyaku acquire verify-receipt \
 
 The verifier never writes `work-state.jsonl`; a human or a separate reviewed
 adapter must perform that state transition using the verified receipt.
+
+The CLI exits `0` only when both structural receipt validation and the supplied
+evidence check pass. An invalid or incomplete receipt exits `1`, so automation
+cannot mistake a printed failure report for a successful gate.
