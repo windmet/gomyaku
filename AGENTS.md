@@ -16,6 +16,13 @@ It is not a publication site and must remain independent of Qianqingtie.
 - Use fictional/synthetic fixtures for contract tests. Provider names may be
   documented as interchangeable authoring inputs, but no provider-specific
   corpus or credentials belong here.
+- Media Catalog code may define provider interfaces, yt-dlp observation
+  parsing, normalization, classification primitives, and workspace contracts;
+  the real channel inventory, raw observations, rules, overrides, and work
+  state belong in the private local Authoring Workspace.
+- Never run a real channel scan as part of a generic test or commit. Use an
+  explicit offline observation fixture until the catalog acceptance gate says
+  the local scan is ready.
 - Keep Reader UI, homepage, brand, rights, editorial summaries, and
   case-specific regressions in the consumer repository.
 - A generic change must be usable without Qianqingtie installed.

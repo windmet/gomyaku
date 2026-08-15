@@ -20,6 +20,12 @@ The current v0.1 surface includes:
 - deterministic portable-package compilation;
 - fictional simple, multi-track, and public-record fixtures.
 
+The first Authoring vertical slice is the provider-neutral Media Catalog /
+Source Discovery boundary. Its contract and current CAT-00–CAT-03 status are
+documented in [`docs/authoring/`](docs/authoring/). Catalog tests use synthetic
+yt-dlp observations; real channel inventory remains in a separate local
+Authoring Workspace and never enters this repository.
+
 Provider tools remain interchangeable authoring inputs. The future consumer
 direction is `GOMYAKU -> publication`; publication data does not flow back into
 the generic core.
