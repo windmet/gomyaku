@@ -18,6 +18,7 @@ const requiredString = (value, label) => {
 };
 
 const absoluteLocalPath = /^[A-Za-z]:[\\/]|^\\\\/;
+const parentTraversal = /(^|[\\/])\.\.([\\/]|$)/;
 
 const validateEvidence = (evidence, failures) => {
   if (!Array.isArray(evidence) || evidence.length === 0) {
@@ -26,7 +27,7 @@ const validateEvidence = (evidence, failures) => {
   }
   evidence.forEach((entry, index) => {
     if (typeof entry !== 'string' || !entry.trim()) failures.push(`evidence[${index}] must be a non-empty path`);
-    else if (absoluteLocalPath.test(entry)) failures.push(`evidence[${index}] must be workspace-relative`);
+    else if (absoluteLocalPath.test(entry) || parentTraversal.test(entry)) failures.push(`evidence[${index}] must be workspace-relative`);
   });
 };
 

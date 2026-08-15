@@ -179,11 +179,12 @@ if (!validateWorkState(syntheticWorkState[0]).valid
 }
 const invalidWorkState = validateWorkStateRows([
   { schemaVersion: 1, item: 'youtube:synthetic001', evidence: [] },
-  { schemaVersion: 1, item: 'youtube:synthetic001', evidence: ['C:\\private\\state.json'] },
+  { schemaVersion: 1, item: 'youtube:synthetic001', evidence: ['../private/state.json'] },
 ]);
 if (invalidWorkState.valid
   || !invalidWorkState.failures.some((failure) => failure.includes('evidence must be a non-empty array'))
-  || !invalidWorkState.failures.some((failure) => failure.includes('duplicate Work State item'))) {
+  || !invalidWorkState.failures.some((failure) => failure.includes('duplicate Work State item'))
+  || !invalidWorkState.failures.some((failure) => failure.includes('must be workspace-relative'))) {
   throw new Error('invalid Work State rows were not rejected');
 }
 const allQuery = queryCatalog({

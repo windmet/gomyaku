@@ -1,6 +1,7 @@
 const sourceIdPattern = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
 const originValues = new Set(['catalog', 'explicit']);
 const absoluteLocalPath = /^[A-Za-z]:[\\/]|^\\\\/;
+const parentTraversal = /(^|[\\/])\.\.([\\/]|$)/;
 
 const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
@@ -13,7 +14,7 @@ const normalizeEvidence = (evidence, label) => {
   if (!Array.isArray(evidence) || !evidence.length) throw new Error(`${label}.evidence must be a non-empty array`);
   return evidence.map((entry, index) => {
     const value = requiredString(entry, `${label}.evidence[${index}]`);
-    if (absoluteLocalPath.test(value)) throw new Error(`${label}.evidence[${index}] must be workspace-relative`);
+    if (absoluteLocalPath.test(value) || parentTraversal.test(value)) throw new Error(`${label}.evidence[${index}] must be workspace-relative`);
     return value;
   });
 };

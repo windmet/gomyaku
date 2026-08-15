@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile, realpath, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { compileProject } from '../compiler/compileProject.mjs';
 import { createYouTubeCatalogProvider } from '../catalog/providers/youtube/ytDlpProvider.mjs';
@@ -48,7 +48,7 @@ const usage = () => {
   console.log('  gomyaku catalog sync --provider youtube --source <url> --workspace <path> --observation-file <yt-dlp.jsonl>');
   console.log('  gomyaku catalog classify --workspace <path> [--rules <rules.yaml>] [--overrides <overrides.yaml>]');
   console.log('  gomyaku catalog status --workspace <path>');
-  console.log('  gomyaku catalog validate-work-state --workspace <path> [--out <report.json>]');
+  console.log('  gomyaku catalog validate-work-state --workspace <path> [--evidence-root <workspace-root>] [--out <report.json>]');
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
@@ -176,16 +176,56 @@ const catalogCommand = async () => {
     const items = await readMediaItems(paths.items);
     const workState = await readJsonl(paths.workState, { label: 'work-state.jsonl' });
     const result = validateWorkStateRows(workState, { knownItemIds: new Set(items.map((item) => item.id)) });
+    const evidenceFailures = [];
+    let evidenceChecked = 0;
+    let evidenceMissing = 0;
+    const evidenceRootInput = readFlag('--evidence-root');
+    let evidenceRootPath;
+    if (evidenceRootInput) {
+      try {
+        evidenceRootPath = await realpath(path.resolve(evidenceRootInput));
+        for (const state of workState) {
+          if (!Array.isArray(state.evidence)) continue;
+          for (const evidence of state.evidence) {
+            if (typeof evidence !== 'string' || !evidence.trim()) continue;
+            evidenceChecked += 1;
+            const candidate = path.resolve(evidenceRootPath, evidence);
+            try {
+              const resolved = await realpath(candidate);
+              const relative = path.relative(evidenceRootPath, resolved);
+              if (relative.startsWith('..') || path.isAbsolute(relative)) {
+                evidenceFailures.push(`${state.item}: evidence escapes workspace: ${evidence}`);
+                evidenceMissing += 1;
+              } else {
+                await stat(resolved);
+              }
+            } catch {
+              evidenceFailures.push(`${state.item}: evidence file is missing: ${evidence}`);
+              evidenceMissing += 1;
+            }
+          }
+        }
+      } catch {
+        evidenceFailures.push(`evidence root is unavailable: ${evidenceRootInput}`);
+      }
+    }
     const report = {
       workspace: paths.root,
       itemCount: items.length,
       workStateCount: workState.length,
-      ...result,
+      valid: result.valid && evidenceFailures.length === 0,
+      failures: [...result.failures, ...evidenceFailures],
+      evidence: {
+        status: evidenceRootInput ? 'checked' : 'not-run',
+        root: evidenceRootPath || evidenceRootInput || null,
+        checked: evidenceChecked,
+        missing: evidenceMissing,
+      },
     };
     const output = `${JSON.stringify(report, null, 2)}\n`;
     if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
     else process.stdout.write(output);
-    if (!result.valid) process.exitCode = 1;
+    if (!report.valid) process.exitCode = 1;
     return;
   }
   if (subcommand === 'export') {

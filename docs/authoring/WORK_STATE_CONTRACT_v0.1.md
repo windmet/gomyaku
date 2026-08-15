@@ -39,12 +39,15 @@ Catalog item to have a Work State row.
 - `validateWorkState(row)` checks one row;
 - `validateWorkStateRows(rows, { knownItemIds })` checks duplicate and reference
   boundaries;
-- `catalog validate-work-state --workspace <path>` performs a read-only local
-  check and returns a JSON report.
+- `catalog validate-work-state --workspace <path> --evidence-root <root>`
+  performs a read-only local check, resolves every evidence path inside the
+  supplied workspace root (including a symlink escape check), and returns a
+  JSON report. Without `--evidence-root`, it reports structural validation only
+  and marks the evidence check `not-run`.
 
-The generic package exports the same validators at
+The generic package exports the structural validators at
 `gomyaku/catalog/work-state`. No validator writes Work State or executes an
-acquisition plan.
+acquisition plan; actual file existence is intentionally a local CLI gate.
 
 ## Boundary decisions
 
