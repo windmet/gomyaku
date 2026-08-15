@@ -20,6 +20,7 @@ import {
   buildAcquisitionPlan,
   verifyAcquisitionReceipt,
   buildWorkStateUpdatePlan,
+  applyWorkStateUpdatePlan,
   validateWorkState,
   validateWorkStateRows,
   buildSourceSetReviewPlan,
@@ -437,6 +438,24 @@ try {
   partialProposalRejected = error.message.includes('completed acquisition receipt');
 }
 if (!partialProposalRejected) throw new Error('partial receipt was accepted for Work State proposal');
+const workStateApplyResult = applyWorkStateUpdatePlan({
+  currentRows: [],
+  plan: workStateUpdatePlan,
+  approval: {
+    planId: workStateUpdatePlan.planId,
+    confirmedItems: workStateUpdatePlan.updates.map((update) => update.item),
+    reviewedBy: 'synthetic-operator',
+    reviewedAt: '2026-08-15T00:02:00.000Z',
+    reason: 'Synthetic review of the complete acquisition evidence',
+  },
+  knownItemIds: new Set(['youtube:synthetic001']),
+});
+if (workStateApplyResult.kind !== 'work-state-apply-result'
+  || workStateApplyResult.rows.length !== 1
+  || workStateApplyResult.rows[0].audio?.status !== 'downloaded'
+  || workStateApplyResult.rows[0].sourceEngineering?.status !== 'receipt-verified') {
+  throw new Error('Work State apply result contract is incomplete');
+}
 
 const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'gomyaku-catalog-fixture-'));
 try {

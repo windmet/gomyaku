@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-21 now extend the
+Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-22 now extend the
 generic slice with read-only query and explicit materialization plans. The
 workflow remains offline-testable in this repository; CAT-09 real acceptance
 is local-only.
@@ -62,6 +62,10 @@ is local-only.
 - CAT-21: a complete, evidence-verified acquisition receipt can produce a
   pending Work State update plan; the proposal remains a separate reviewed
   apply step and never edits local Work State itself.
+- CAT-22: applying a Work State proposal is a separately gated mutation that
+  requires an exact approval artifact, clean evidence, a non-existing backup
+  path, and an explicit `--apply-reviewed` flag; unrelated rows and sections
+  are preserved.
 
 ## Deliberately not included yet
 

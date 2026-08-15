@@ -15,6 +15,7 @@ export { buildAcquisitionPlan } from './catalog/acquire/acquisitionPlan.mjs';
 export { verifyAcquisitionReceipt } from './catalog/acquire/acquisitionReceipt.mjs';
 export { assertWorkState, validateWorkState, validateWorkStateRows } from './catalog/workstate/workState.mjs';
 export { buildWorkStateUpdatePlan } from './catalog/workstate/workStateUpdatePlan.mjs';
+export { applyWorkStateUpdatePlan } from './catalog/workstate/applyWorkStateUpdatePlan.mjs';
 export { buildSourceSetReviewPlan } from './catalog/sourceset/sourceSetReview.mjs';
 export { approveSourceSetReviewPlan } from './catalog/sourceset/approveSourceSet.mjs';
 export { buildSourceSetMaterializationPlan } from './catalog/materialize/materializeSourceSet.mjs';

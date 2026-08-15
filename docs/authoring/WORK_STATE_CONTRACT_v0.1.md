@@ -70,6 +70,28 @@ partial receipts and stays `review.pending`; a separate local operation must
 apply the rows after checking the Project manifest. The command never edits
 `work-state.jsonl`.
 
+## Reviewed apply step
+
+Writing the proposal back is a separate mutation and requires all of the
+following: a matching approval artifact, exact item order, a clean evidence
+check, a caller-supplied backup path that does not already exist, and the
+literal `--apply-reviewed` flag. The command merges approved sections while
+preserving unrelated existing sections and evidence:
+
+```text
+gomyaku catalog apply-work-state-plan \
+  --workspace E:\\GOMYAKU\\Catalogs\\komachoe-youtube \
+  --plan work-state-update-plan.json \
+  --approval work-state-approval.json \
+  --evidence-root E:\\GOMYAKU \
+  --backup E:\\GOMYAKU\\Archive\\work-state-before-apply.jsonl \
+  --apply-reviewed
+```
+
+The apply report records the backup and changed sections. No real Catalog row
+is applied by synthetic tests; an operator must create the approval artifact
+after checking the Project manifest.
+
 ## Boundary decisions
 
 - Work State stays in the local Catalog workspace; it is not copied into

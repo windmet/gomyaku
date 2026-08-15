@@ -12,6 +12,7 @@ import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
 import { verifyAcquisitionReceipt } from '../catalog/acquire/acquisitionReceipt.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
 import { buildWorkStateUpdatePlan } from '../catalog/workstate/workStateUpdatePlan.mjs';
+import { applyWorkStateUpdatePlan } from '../catalog/workstate/applyWorkStateUpdatePlan.mjs';
 import { buildSourceSetReviewPlan } from '../catalog/sourceset/sourceSetReview.mjs';
 import { approveSourceSetReviewPlan } from '../catalog/sourceset/approveSourceSet.mjs';
 import { buildSourceSetMaterializationPlan } from '../catalog/materialize/materializeSourceSet.mjs';
@@ -55,6 +56,7 @@ const usage = () => {
   console.log('  gomyaku catalog status --workspace <path>');
   console.log('  gomyaku catalog validate-work-state --workspace <path> [--evidence-root <workspace-root>] [--out <report.json>]');
   console.log('  gomyaku catalog work-state-plan --acquisition-plan <plan.json> --receipt <receipt.json> --evidence-root <workspace-root> [--out <proposal.json>]');
+  console.log('  gomyaku catalog apply-work-state-plan --workspace <path> --plan <proposal.json> --approval <approval.json> --evidence-root <workspace-root> --backup <backup.jsonl> --apply-reviewed [--out <report.json>]');
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
@@ -213,6 +215,54 @@ const catalogCommand = async () => {
       throw new Error(`Work State proposal requires a clean evidence check: ${JSON.stringify(evidence)}`);
     }
     const output = `${JSON.stringify({ ...proposal, evidence }, null, 2)}\n`;
+    if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+    else process.stdout.write(output);
+    return;
+  }
+  if (subcommand === 'apply-work-state-plan') {
+    if (!args.includes('--apply-reviewed')) throw new Error('--apply-reviewed is required for Work State mutation');
+    const selectedWorkspace = requireValue(workspacePath, '--workspace');
+    const selectedPlanPath = requireValue(readFlag('--plan'), '--plan');
+    const selectedApprovalPath = requireValue(readFlag('--approval'), '--approval');
+    const evidenceRoot = requireValue(readFlag('--evidence-root'), '--evidence-root');
+    const backupPath = requireValue(readFlag('--backup'), '--backup');
+    const paths = createCatalogWorkspacePaths(selectedWorkspace);
+    const plan = JSON.parse(await readFile(path.resolve(selectedPlanPath), 'utf8'));
+    const approval = JSON.parse(await readFile(path.resolve(selectedApprovalPath), 'utf8'));
+    const items = await readMediaItems(paths.items);
+    const currentRows = await readJsonl(paths.workState, { label: 'work-state.jsonl' });
+    const evidence = await checkEvidenceFiles({ records: plan.updates, root: evidenceRoot });
+    if (evidence.status !== 'checked' || evidence.failures.length) {
+      throw new Error(`Work State apply requires a clean evidence check: ${JSON.stringify(evidence)}`);
+    }
+    const absoluteWorkState = path.resolve(paths.workState);
+    const absoluteBackup = path.resolve(backupPath);
+    if (absoluteWorkState === absoluteBackup) throw new Error('--backup must be different from work-state.jsonl');
+    try {
+      await readFile(absoluteBackup, 'utf8');
+      throw new Error(`backup path already exists: ${absoluteBackup}`);
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    const result = applyWorkStateUpdatePlan({
+      currentRows,
+      plan,
+      approval,
+      knownItemIds: new Set(items.map((item) => item.id)),
+    });
+    await writeFile(absoluteBackup, (await readFile(absoluteWorkState, 'utf8')), 'utf8');
+    await writeJsonl(paths.workState, result.rows);
+    const report = {
+      kind: 'work-state-apply-report',
+      valid: true,
+      planId: result.planId,
+      appliedItems: result.appliedItems,
+      changedSections: result.changedSections,
+      backup: absoluteBackup,
+      evidence,
+      workState: paths.workState,
+    };
+    const output = `${JSON.stringify(report, null, 2)}\n`;
     if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
     else process.stdout.write(output);
     return;

@@ -183,6 +183,14 @@ export interface WorkStateUpdatePlan {
   nextSteps: string[];
 }
 
+export interface WorkStateApplyApproval {
+  planId: string;
+  confirmedItems: string[];
+  reviewedBy: string;
+  reviewedAt: string;
+  reason: string;
+}
+
 export interface SourceSetReviewPlan {
   schemaVersion: 1;
   kind: 'source-set-review-plan';

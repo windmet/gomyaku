@@ -20,6 +20,7 @@ import {
   buildSourceSetMaterializationPlan,
   verifyAcquisitionReceipt,
   buildWorkStateUpdatePlan,
+  applyWorkStateUpdatePlan,
   validateArchivePackage,
   verifySourceSet,
 } from '../src/index.mjs';
@@ -48,6 +49,7 @@ for (const [name, value] of Object.entries({
   buildSourceSetMaterializationPlan,
   verifyAcquisitionReceipt,
   buildWorkStateUpdatePlan,
+  applyWorkStateUpdatePlan,
 })) {
   if (typeof value !== 'function') throw new Error(`GOMYAKU package surface missing ${name}`);
 }
