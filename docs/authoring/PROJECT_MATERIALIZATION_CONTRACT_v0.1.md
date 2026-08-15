@@ -46,6 +46,15 @@ local path is emitted unless the caller supplies `--project-root`.
 The plan's source selection is pending until a human confirms the exact Project
 ID and ordered Catalog Media Item IDs. Approval is a separate artifact:
 
+First generate the hand-off template directly from the pending plan. This
+copies the exact ordered IDs and leaves all human fields blank:
+
+```text
+gomyaku project materialize-approval-template \
+  --plan materialization-plan.json \
+  --out materialization-approval.template.json
+```
+
 ```text
 gomyaku project materialize-approve \
   --plan materialization-plan.json \

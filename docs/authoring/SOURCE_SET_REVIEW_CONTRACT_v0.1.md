@@ -50,6 +50,18 @@ timestamp, and a confirmation reason. The CLI requires a clean local evidence
 check and rejects unresolved URLs, missing sources, duplicate IDs, or an
 approval for a different plan.
 
+Generate the blank hand-off template from the pending plan rather than copying
+source IDs by hand:
+
+```text
+gomyaku project source-set-approval-template \
+  --plan source-set-review.json \
+  --out source-set-approval.template.json
+```
+
+The generated file is not an approval: reviewer, timestamp, and reason remain
+empty until an operator has checked the source set.
+
 Approval input example:
 
 ```json

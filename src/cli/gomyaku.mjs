@@ -9,6 +9,7 @@ import { buildCatalogRows, renderCatalogMarkdown } from '../catalog/export/catal
 import { queryCatalog, renderCatalogQueryMarkdown } from '../catalog/query/queryCatalog.mjs';
 import { buildProjectMaterializationPlan } from '../catalog/materialize/materializeProject.mjs';
 import { approveMaterializationPlan } from '../catalog/materialize/approveMaterializationPlan.mjs';
+import { buildMaterializationApprovalTemplate, buildSourceSetApprovalTemplate } from '../catalog/materialize/approvalTemplates.mjs';
 import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
 import { verifyAcquisitionReceipt } from '../catalog/acquire/acquisitionReceipt.mjs';
 import { validateWorkStateRows } from '../catalog/workstate/workState.mjs';
@@ -62,7 +63,9 @@ const usage = () => {
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id>[,<media-id>] --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
   console.log('  gomyaku project materialize-approve --plan <materialization-plan.json> --approval <approval.json> [--out <approved-plan.json>]');
+  console.log('  gomyaku project materialize-approval-template --plan <materialization-plan.json> [--out <approval-template.json>]');
   console.log('  gomyaku project source-set-plan --sources <sources.json> --project-id <slug> --reason <text> [--evidence-root <workspace-root>] [--out <path>]');
+  console.log('  gomyaku project source-set-approval-template --plan <source-set-review.json> [--out <approval-template.json>]');
   console.log('  gomyaku project source-set-approve --plan <source-set-review.json> --approval <approval.json> --evidence-root <workspace-root> [--out <approved-source-set.json>]');
   console.log('  gomyaku project materialize-source-set --source-set <approved-source-set.json> --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
   console.log('  gomyaku acquire plan --workspace <path> --item <media-id>[,<media-id>] --artifact audio,chat,comments --plan-id <id> --reason <text> [--materialization-plan <approved-plan.json>] [--out <path>]');
@@ -417,6 +420,16 @@ if (command === 'project' && args[1] === 'materialize-approve') {
   process.exit(0);
 }
 
+if (command === 'project' && args[1] === 'materialize-approval-template') {
+  const selectedPlanPath = requireValue(readFlag('--plan'), '--plan');
+  const plan = JSON.parse(await readFile(path.resolve(selectedPlanPath), 'utf8'));
+  const template = buildMaterializationApprovalTemplate({ plan });
+  const output = `${JSON.stringify(template, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
+  process.exit(0);
+}
+
 if (command === 'acquire' && args[1] === 'plan') {
   const selectedWorkspace = requireValue(workspacePath, '--workspace');
   const selectedItemIds = listFlag('--item');
@@ -503,6 +516,16 @@ if (command === 'project' && args[1] === 'source-set-approve') {
   }
   const approved = approveSourceSetReviewPlan({ plan, approval });
   const output = `${JSON.stringify({ ...approved, evidence }, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
+  process.exit(0);
+}
+
+if (command === 'project' && args[1] === 'source-set-approval-template') {
+  const selectedPlanPath = requireValue(readFlag('--plan'), '--plan');
+  const plan = JSON.parse(await readFile(path.resolve(selectedPlanPath), 'utf8'));
+  const template = buildSourceSetApprovalTemplate({ plan });
+  const output = `${JSON.stringify(template, null, 2)}\n`;
   if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
   else process.stdout.write(output);
   process.exit(0);

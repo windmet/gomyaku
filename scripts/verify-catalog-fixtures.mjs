@@ -18,6 +18,7 @@ import {
   renderCatalogQueryMarkdown,
   buildProjectMaterializationPlan,
   approveMaterializationPlan,
+  buildMaterializationApprovalTemplate,
   buildAcquisitionPlan,
   verifyAcquisitionReceipt,
   buildWorkStateUpdatePlan,
@@ -25,6 +26,7 @@ import {
   validateWorkState,
   validateWorkStateRows,
   buildSourceSetReviewPlan,
+  buildSourceSetApprovalTemplate,
   approveSourceSetReviewPlan,
   buildSourceSetMaterializationPlan,
 } from '../src/index.mjs';
@@ -243,6 +245,15 @@ if (materializationPlan.kind !== 'project-materialization-plan'
   || materializationPlan.selection.requiresExplicitAcquisition !== true) {
   throw new Error('project materialization plan contract is incomplete');
 }
+const materializationApprovalTemplate = buildMaterializationApprovalTemplate({ plan: materializationPlan });
+if (materializationApprovalTemplate.planId !== materializationPlan.planId
+  || materializationApprovalTemplate.projectId !== materializationPlan.project.id
+  || JSON.stringify(materializationApprovalTemplate.confirmedMediaItemIds) !== JSON.stringify([materializationPlan.origin.mediaItemId])
+  || materializationApprovalTemplate.reviewedBy !== ''
+  || materializationApprovalTemplate.reviewedAt !== ''
+  || materializationApprovalTemplate.reason !== '') {
+  throw new Error('materialization approval template contract is incomplete');
+}
 const approvedMaterializationPlan = approveMaterializationPlan({
   plan: materializationPlan,
   approval: {
@@ -258,6 +269,15 @@ if (approvedMaterializationPlan.selection.requiresReviewedSourceSet !== false
   || approvedMaterializationPlan.review?.status !== 'approved'
   || approvedMaterializationPlan.approval?.confirmedMediaItemIds.length !== 1) {
   throw new Error('materialization approval contract is incomplete');
+}
+let approvedMaterializationTemplateRejected = false;
+try {
+  buildMaterializationApprovalTemplate({ plan: approvedMaterializationPlan });
+} catch (error) {
+  approvedMaterializationTemplateRejected = error.message.includes('pending materialization plan');
+}
+if (!approvedMaterializationTemplateRejected) {
+  throw new Error('approved materialization plan produced a misleading approval template');
 }
 let pendingMaterializationRejected = false;
 try {
@@ -357,6 +377,14 @@ if (sourceSetReviewPlan.kind !== 'source-set-review-plan'
   || sourceSetReviewPlan.selection.inference !== 'disabled') {
   throw new Error('cross-provider source-set review plan contract is incomplete');
 }
+const sourceSetApprovalTemplate = buildSourceSetApprovalTemplate({ plan: sourceSetReviewPlan });
+if (sourceSetApprovalTemplate.planId !== sourceSetReviewPlan.planId
+  || JSON.stringify(sourceSetApprovalTemplate.confirmedSourceIds) !== JSON.stringify(sourceSetReviewPlan.sources.map((source) => source.id))
+  || sourceSetApprovalTemplate.reviewedBy !== ''
+  || sourceSetApprovalTemplate.reviewedAt !== ''
+  || sourceSetApprovalTemplate.reason !== '') {
+  throw new Error('source-set approval template contract is incomplete');
+}
 let sourceSetRejected = false;
 try {
   buildSourceSetReviewPlan({
@@ -412,6 +440,15 @@ if (approvedSourceSet.review.status !== 'approved'
   || approvedSourceSet.review.requiresHumanConfirmation !== false
   || approvedSourceSet.approval?.confirmedSourceIds.length !== 2) {
   throw new Error('source-set approval artifact contract is incomplete');
+}
+let approvedSourceSetTemplateRejected = false;
+try {
+  buildSourceSetApprovalTemplate({ plan: approvedSourceSet });
+} catch (error) {
+  approvedSourceSetTemplateRejected = error.message.includes('pending source-set review plan');
+}
+if (!approvedSourceSetTemplateRejected) {
+  throw new Error('approved source set produced a misleading approval template');
 }
 const approvedSourceSetMaterialization = buildSourceSetMaterializationPlan({
   sourceSet: approvedSourceSet,

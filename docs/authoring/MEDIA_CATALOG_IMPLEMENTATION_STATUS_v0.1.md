@@ -70,6 +70,9 @@ is local-only.
   artifact for Project ID and exact ordered source IDs.
 - CAT-24: Acquisition Plans can bind to an approved materialization plan and
   reject a pending or mismatched source selection.
+- CAT-25: pending materialization and Source Set Review plans can generate
+  exact-ID approval templates; reviewer metadata stays blank and no approval
+  is inferred.
 
 ## Deliberately not included yet
 
