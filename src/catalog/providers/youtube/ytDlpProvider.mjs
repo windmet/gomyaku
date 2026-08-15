@@ -78,8 +78,12 @@ export const normalizeYouTubeObservation = (observation, {
   const durationMs = Number.isFinite(observation.duration) ? Math.max(0, Math.round(observation.duration * 1000)) : undefined;
   const liveStatus = normalizeLiveStatus(observation);
   const source = {
-    ...(observation.channel_id ? { channelId: observation.channel_id } : {}),
-    ...(observation.channel || observation.uploader ? { channelName: observation.channel || observation.uploader } : {}),
+    ...(observation.channel_id || observation.playlist_channel_id
+      ? { channelId: observation.channel_id || observation.playlist_channel_id }
+      : {}),
+    ...(observation.channel || observation.uploader || observation.playlist_channel
+      ? { channelName: observation.channel || observation.uploader || observation.playlist_channel }
+      : {}),
     tab,
     url: sourceUrl || canonicalUrl,
   };

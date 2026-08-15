@@ -48,6 +48,18 @@ assertMediaItem(generic);
 if (normalized[0].id !== 'youtube:synthetic001') throw new Error('stable provider id was not normalized');
 if (normalized[0].durationMs !== 3_600_000) throw new Error('duration seconds were not normalized to milliseconds');
 if (normalized[1].publishedAt !== '2026-08-15T00:00:00.000Z') throw new Error('upload_date was not normalized');
+const flatPlaylistFallback = normalizeYouTubeObservation({
+  id: 'playlist-fallback',
+  title: 'Flat playlist fallback',
+  playlist_channel_id: 'UCplaylist',
+  playlist_channel: 'Playlist Channel',
+  webpage_url: 'https://www.youtube.com/watch?v=playlist-fallback',
+  duration: 12,
+  live_status: 'was_live',
+}, { sourceUrl: 'https://www.youtube.com/@synthetic/streams', now });
+if (flatPlaylistFallback.source.channelId !== 'UCplaylist' || flatPlaylistFallback.source.channelName !== 'Playlist Channel') {
+  throw new Error('flat playlist channel fallback was not normalized');
+}
 
 const nested = parseYtDlpJsonLines(JSON.stringify({ entries: JSON.parse(`[${fixtureText.trim().replace(/\n/g, ',')}]`) }));
 if (nested.length !== 2) throw new Error('nested yt-dlp entries were not flattened');
