@@ -1,8 +1,8 @@
 # GOMYAKU Media Catalog / Source Discovery Workflow v0.1
 ## 将频道级媒体索引正式纳入 GOMYAKU × 前情帖开发路径
 
-> Status: Proposed Development Path  
-> Scope: GOMYAKU Authoring / Source Discovery / Media Inventory / Qianqingtie Publication Projection  
+> Status: Proposed Development Path
+> Scope: GOMYAKU Authoring / Source Discovery / Media Inventory / Qianqingtie Publication Projection
 > First Real Fixture: 小松昌平 YouTube `@komachoe/streams`
 >
 > 本文不是独立“小松视频爬虫”设计稿。

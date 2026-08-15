@@ -2,3 +2,7 @@ export { compileProject } from './compiler/compileProject.mjs';
 export { deriveProjectCapabilities } from './projections/projectPresentation.mjs';
 export { validateArchivePackage } from './validation/projectPackage.mjs';
 export { verifySourceSet } from './validation/sourceSet.mjs';
+export { assertCatalogDescriptor, assertMediaItem, validateCatalogDescriptor, validateMediaItem } from './catalog/model/catalogPackage.mjs';
+export { normalizeMediaItem } from './catalog/normalize/normalizeMediaItem.mjs';
+export { buildYtDlpDiscoveryArgs, createYouTubeCatalogProvider, normalizeYouTubeObservation, parseYtDlpJsonLines } from './catalog/providers/youtube/ytDlpProvider.mjs';
+export { mergeMediaItems } from './catalog/sync/mergeCatalog.mjs';

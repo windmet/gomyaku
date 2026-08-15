@@ -8,7 +8,8 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "test": "node scripts/verify-fixtures.mjs",
+    "test": "node scripts/verify-fixtures.mjs && npm run test:catalog",
+    "test:catalog": "node scripts/verify-catalog-fixtures.mjs",
     "verify:package": "node scripts/verify-package-surface.mjs",
     "validate": "npm test && npm run verify:package && npm exec -- tsc --noEmit",
     "compile": "node src/cli/gomyaku.mjs compile"
@@ -20,7 +21,11 @@
     "./projections/project-people": "./src/projections/projectPeople.ts",
     "./projections/project-presentation": "./src/projections/projectPresentation.mjs",
     "./validation/project-package": "./src/validation/projectPackage.mjs",
-    "./validation/source-set": "./src/validation/sourceSet.mjs"
+    "./validation/source-set": "./src/validation/sourceSet.mjs",
+    "./catalog/model": "./src/catalog/model/catalogPackage.mjs",
+    "./catalog/normalize": "./src/catalog/normalize/normalizeMediaItem.mjs",
+    "./catalog/providers/youtube": "./src/catalog/providers/youtube/ytDlpProvider.mjs",
+    "./catalog/workspace": "./src/catalog/workspace/catalogWorkspace.mjs"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

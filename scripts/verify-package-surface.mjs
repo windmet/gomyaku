@@ -1,6 +1,13 @@
 import {
+  assertMediaItem,
+  buildYtDlpDiscoveryArgs,
   compileProject,
+  createYouTubeCatalogProvider,
   deriveProjectCapabilities,
+  mergeMediaItems,
+  normalizeMediaItem,
+  normalizeYouTubeObservation,
+  parseYtDlpJsonLines,
   validateArchivePackage,
   verifySourceSet,
 } from '../src/index.mjs';
@@ -10,6 +17,13 @@ for (const [name, value] of Object.entries({
   deriveProjectCapabilities,
   validateArchivePackage,
   verifySourceSet,
+  assertMediaItem,
+  buildYtDlpDiscoveryArgs,
+  createYouTubeCatalogProvider,
+  mergeMediaItems,
+  normalizeMediaItem,
+  normalizeYouTubeObservation,
+  parseYtDlpJsonLines,
 })) {
   if (typeof value !== 'function') throw new Error(`GOMYAKU package surface missing ${name}`);
 }
