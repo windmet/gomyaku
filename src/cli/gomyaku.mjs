@@ -8,6 +8,7 @@ import { renderCatalogStatusMarkdown, summarizeCatalog } from '../catalog/status
 import { buildCatalogRows, renderCatalogMarkdown } from '../catalog/export/catalogExport.mjs';
 import { queryCatalog, renderCatalogQueryMarkdown } from '../catalog/query/queryCatalog.mjs';
 import { buildProjectMaterializationPlan } from '../catalog/materialize/materializeProject.mjs';
+import { buildAcquisitionPlan } from '../catalog/acquire/acquisitionPlan.mjs';
 import {
   createCatalogWorkspacePaths,
   initializeCatalogWorkspace,
@@ -47,6 +48,7 @@ const usage = () => {
   console.log('  gomyaku catalog export --workspace <path> --format markdown|json');
   console.log('  gomyaku catalog query --workspace <path> [--category <value>] [--series <value>] [--game <value>] [--format <value>] [--person <id>] [--date-from <YYYY-MM-DD>] [--date-to <YYYY-MM-DD>] [--audio-status <value>] [--transcript-status <value>] [--project-status <value>] [--publication-candidate true|false] [--search <text>] [--format-out json|markdown] [--out <path>]');
   console.log('  gomyaku project materialize --catalog-workspace <path> --item <media-id> --project-id <slug> --reason <text> [--project-title <title>] [--project-root <path>] [--snapshot-id <id>] [--out <path>]');
+  console.log('  gomyaku acquire plan --workspace <path> --item <media-id>[,<media-id>] --artifact audio,chat,comments --plan-id <id> --reason <text> [--out <path>]');
 };
 
 const requireValue = (value, label) => {
@@ -56,6 +58,18 @@ const requireValue = (value, label) => {
     process.exit(2);
   }
   return value;
+};
+
+const readCatalogDescriptor = async (descriptorPath) => {
+  const descriptorText = await readFile(descriptorPath, 'utf8');
+  return Object.fromEntries(descriptorText.split(/\r?\n/)
+    .map((line) => line.match(/^([A-Za-z][A-Za-z0-9_]*)\s*:\s*(.*)$/))
+    .filter(Boolean)
+    .map((match) => {
+      let value = match[2].trim();
+      try { value = JSON.parse(value); } catch { /* serializer keeps unquoted scalars valid */ }
+      return [match[1], value];
+    }));
 };
 
 const readJsonCompatibleYaml = async (filePath, label) => {
@@ -234,15 +248,7 @@ if (command === 'project' && args[1] === 'materialize') {
   const item = items.find((candidate) => candidate.id === selectedItemId);
   if (!item) throw new Error(`selected Media Item was not found: ${selectedItemId}`);
   const classification = classifications.find((candidate) => candidate.item === selectedItemId);
-  const descriptorText = await readFile(paths.descriptor, 'utf8');
-  const descriptor = Object.fromEntries(descriptorText.split(/\r?\n/)
-    .map((line) => line.match(/^([A-Za-z][A-Za-z0-9_]*)\s*:\s*(.*)$/))
-    .filter(Boolean)
-    .map((match) => {
-      let value = match[2].trim();
-      try { value = JSON.parse(value); } catch { /* serializer keeps unquoted scalars valid */ }
-      return [match[1], value];
-    }));
+  const descriptor = await readCatalogDescriptor(paths.descriptor);
   const plan = buildProjectMaterializationPlan({
     catalog: descriptor,
     item,
@@ -252,6 +258,32 @@ if (command === 'project' && args[1] === 'materialize') {
     projectRoot: readFlag('--project-root'),
     selectionReason,
     snapshotId: readFlag('--snapshot-id'),
+  });
+  const output = `${JSON.stringify(plan, null, 2)}\n`;
+  if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');
+  else process.stdout.write(output);
+  process.exit(0);
+}
+
+if (command === 'acquire' && args[1] === 'plan') {
+  const selectedWorkspace = requireValue(workspacePath, '--workspace');
+  const selectedItemIds = listFlag('--item');
+  const selectedPlanId = requireValue(readFlag('--plan-id'), '--plan-id');
+  const selectionReason = requireValue(readFlag('--reason'), '--reason');
+  const paths = createCatalogWorkspacePaths(selectedWorkspace);
+  const items = await readMediaItems(paths.items);
+  const classifications = await readJsonl(paths.classifications, { label: 'classifications.jsonl' });
+  const workState = await readJsonl(paths.workState, { label: 'work-state.jsonl' });
+  const descriptor = await readCatalogDescriptor(paths.descriptor);
+  const plan = buildAcquisitionPlan({
+    catalog: descriptor,
+    items,
+    classifications,
+    workState,
+    itemIds: selectedItemIds,
+    artifacts: listFlag('--artifact') || ['audio'],
+    planId: selectedPlanId,
+    selectionReason,
   });
   const output = `${JSON.stringify(plan, null, 2)}\n`;
   if (outputPath) await writeFile(path.resolve(outputPath), output, 'utf8');

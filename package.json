@@ -30,6 +30,7 @@
     "./catalog/export": "./src/catalog/export/catalogExport.mjs",
     "./catalog/query": "./src/catalog/query/queryCatalog.mjs",
     "./catalog/materialize": "./src/catalog/materialize/materializeProject.mjs",
+    "./catalog/acquire": "./src/catalog/acquire/acquisitionPlan.mjs",
     "./catalog/workspace": "./src/catalog/workspace/catalogWorkspace.mjs"
   },
   "devDependencies": {

@@ -183,3 +183,26 @@ export interface ProjectMaterializationPlan {
   };
   nextSteps: string[];
 }
+
+export type AcquisitionArtifact = 'video' | 'audio' | 'chat' | 'comments';
+
+export interface AcquisitionPlan {
+  schemaVersion: 1;
+  kind: 'acquisition-plan';
+  planId: string;
+  origin: { catalogId: string; catalogSource: string };
+  selection: { reason: string; itemCount: number; artifactTypes: AcquisitionArtifact[] };
+  requests: Array<{
+    item: Record<string, unknown>;
+    classification: Record<string, unknown> | null;
+    existing: { audio: string; chat: string; comments: string };
+    artifacts: Array<{ type: AcquisitionArtifact; status: 'planned' }>;
+    eligibility: 'eligible' | 'review-required';
+  }>;
+  execution: {
+    status: 'not-executed';
+    explicitApprovalRequired: true;
+    downloader: null;
+    workStateMutation: 'separate-execution-step';
+  };
+}

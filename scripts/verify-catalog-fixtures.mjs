@@ -17,6 +17,7 @@ import {
   queryCatalog,
   renderCatalogQueryMarkdown,
   buildProjectMaterializationPlan,
+  buildAcquisitionPlan,
 } from '../src/index.mjs';
 import {
   createCatalogWorkspacePaths,
@@ -213,6 +214,27 @@ if (materializationPlan.kind !== 'project-materialization-plan'
   || materializationPlan.project.root !== undefined
   || materializationPlan.selection.requiresExplicitAcquisition !== true) {
   throw new Error('project materialization plan contract is incomplete');
+}
+const acquisitionPlan = buildAcquisitionPlan({
+  catalog: {
+    id: 'synthetic-youtube',
+    provider: 'youtube',
+    source: 'https://www.youtube.com/@synthetic/streams',
+  },
+  items: firstMerge.items,
+  classifications: firstClassification.classifications,
+  workState: syntheticWorkState,
+  itemIds: ['youtube:synthetic001'],
+  artifacts: ['audio', 'chat', 'comments'],
+  planId: 'synthetic-acquisition-r1',
+  selectionReason: 'Synthetic acceptance fixture selection',
+});
+if (acquisitionPlan.kind !== 'acquisition-plan'
+  || acquisitionPlan.requests.length !== 1
+  || acquisitionPlan.requests[0].artifacts.length !== 3
+  || acquisitionPlan.execution.status !== 'not-executed'
+  || acquisitionPlan.execution.explicitApprovalRequired !== true) {
+  throw new Error('acquisition plan contract is incomplete');
 }
 
 const tempRoot = await mkdtemp(path.join(os.tmpdir(), 'gomyaku-catalog-fixture-'));

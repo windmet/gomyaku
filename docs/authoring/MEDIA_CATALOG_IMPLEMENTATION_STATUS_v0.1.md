@@ -1,6 +1,6 @@
 # Media Catalog implementation status v0.1
 
-Status: CAT-00 through CAT-08 are complete, and CAT-10/CAT-11 now extend the
+Status: CAT-00 through CAT-08 are complete, and CAT-10–CAT-12 now extend the
 generic slice with read-only query and explicit materialization plans. The
 workflow remains offline-testable in this repository; CAT-09 real acceptance
 is local-only.
@@ -36,6 +36,9 @@ is local-only.
   and read-only.
 - CAT-11: explicit Project materialization produces a provenance-rich plan
   only. It never creates a directory, downloads media, runs ASR, or publishes.
+- CAT-12: explicit Acquisition Plans list requested audio/video/chat/comments
+  artifacts and existing local status without executing a downloader or
+  mutating Work State.
 
 ## Deliberately not included yet
 
