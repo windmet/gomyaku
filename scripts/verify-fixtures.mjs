@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { compileProject } from '../src/compiler/compileProject.mjs';
+import { deriveProjectCapabilities } from '../src/projections/projectPresentation.mjs';
 import { validateArchivePackage } from '../src/validation/projectPackage.mjs';
 
 const root = path.resolve('tests/fixtures/gomyaku');
@@ -21,5 +22,18 @@ for (const [name, expected] of cases) {
   const second = compileProject(fixture);
   if (JSON.stringify(first) !== JSON.stringify(second)) throw new Error(`${name}: compiler is not deterministic`);
 }
+
+const setlistCapabilities = deriveProjectCapabilities({
+  project: {
+    id: 'fictional-setlist-record',
+    views: ['overview', 'timeline', 'setlist'],
+    defaultTrack: { id: 'fixture/main' },
+  },
+  tracks: [{ id: 'fixture/main', data: { order: 1, durationMs: 3600000 } }],
+  acts: [],
+  events: [],
+  threads: [],
+});
+if (!setlistCapabilities.showSetlist) throw new Error('setlist capability was not derived');
 
 console.log('GOMYAKU standalone fixtures verified (validation + deterministic compile).');

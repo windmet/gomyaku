@@ -17,6 +17,7 @@ export const deriveProjectCapabilities = ({ project, tracks, acts, events, threa
     showOverview: views.includes('overview'),
     showSections: views.includes('sections'),
     showTimeline: views.includes('timeline'),
+    showSetlist: views.includes('setlist'),
     showMentions: views.includes('mentions'),
     showStorylines: views.includes('storylines'),
     showPeople: views.includes('people'),
