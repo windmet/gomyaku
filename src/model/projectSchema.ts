@@ -107,6 +107,17 @@ export const createProjectPersonSchema = ({ z, reference }: SchemaTools) => z.ob
       'referenced',
       'account-context',
     ]),
+    track: reference('projectTracks').optional(),
+    startMs: z.number().int().nonnegative().optional(),
+  }).superRefine((presence: { track?: unknown; startMs?: number }, context: { addIssue: (issue: { code: 'custom'; message: string }) => void }) => {
+    const hasTrack = Boolean(presence.track);
+    const hasStart = presence.startMs !== undefined;
+    if (hasTrack !== hasStart) {
+      context.addIssue({
+        code: 'custom',
+        message: 'presence track and startMs must be provided together',
+      });
+    }
   })).min(1),
   roles: z.array(z.object({
     kind: z.enum(['cast', 'production', 'action', 'host', 'ensemble']),

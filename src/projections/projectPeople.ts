@@ -17,7 +17,13 @@ export const PERSON_PRESENCE_WEIGHT = {
 
 export type PersonPresenceKind = keyof typeof PERSON_PRESENCE_WEIGHT;
 
-export const projectPersonRelevance = (presence: Array<{ kind: PersonPresenceKind }> = []) =>
+export type ProjectPersonPresence = {
+  kind: PersonPresenceKind;
+  track?: unknown;
+  startMs?: number;
+};
+
+export const projectPersonRelevance = (presence: ProjectPersonPresence[] = []) =>
   Math.max(0, ...presence.map(({ kind }) => PERSON_PRESENCE_WEIGHT[kind] || 0));
 
 export const globalPersonRelevance = (contexts: CollectionEntry[]) => contexts.reduce(
