@@ -1,7 +1,16 @@
 # GOMYAKU
 
-Generic archive model, authoring boundary, validation, projections, and a
-deterministic portable-package compiler.
+Generic indexing and independent local media workflow integration.
+
+The new [`gomyaku/core`](docs/INDEX_CORE.md) entrypoint provides stable
+references, reverse indexes, source-native time ordering, ordered paths, and
+deterministic serialization. It imports no framework, Catalog, filesystem,
+publication policy, or media tool. `npm run test:core` verifies it independently.
+
+Local media integration is the next axis: technical evidence artifacts will
+connect to the core without requiring publication approval. Existing local
+audio/subtitle tooling remains authoritative; this package does not yet ship a
+replacement media-processing pipeline.
 
 This is a fresh-history shadow repository. It intentionally contains no real
 publication corpus and no Reader application. The first acceptance target is
@@ -12,7 +21,7 @@ npm install
 npm run validate
 ```
 
-The current v0.1 surface includes:
+The retained v0.1 compatibility surface includes:
 
 - portable project schema factories;
 - generic People and project-capability projections;

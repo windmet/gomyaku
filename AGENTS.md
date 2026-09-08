@@ -2,9 +2,17 @@
 
 ## Role
 
-This is the **generic archive core and authoring** repository. It owns
-portable model/schema primitives, validation invariants, projections,
-deterministic compilation, and future authoring workflow surfaces.
+This repository has two independent axes: a **generic Index Core** and
+**local media workflow integration**. Core owns stable references, anchors,
+reverse indexes, source-native time ordering, ordered paths, and deterministic
+compilation. Workflow owns technical artifacts and their evidence/provenance
+boundary, independently of publication.
+
+`gomyaku/core` is the new standalone core entrypoint. The Project-centric
+schema/compiler/People APIs and Catalog commands remain compatibility surfaces
+for existing consumers. Do not grow their publication ontology or require their
+approval chain for standalone core or local subtitle work. Workflow integration
+is still pending; do not claim a portable media pipeline has shipped.
 
 It is not a publication site and must remain independent of Qianqingtie.
 

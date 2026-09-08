@@ -8,7 +8,8 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "test": "node scripts/verify-fixtures.mjs && npm run test:catalog",
+    "test": "npm run test:core && node scripts/verify-fixtures.mjs && npm run test:catalog",
+    "test:core": "node --test scripts/core.test.mjs",
     "test:catalog": "node scripts/verify-catalog-fixtures.mjs",
     "verify:cli": "node scripts/verify-cli-exit-codes.mjs",
     "verify:package": "node scripts/verify-package-surface.mjs",
@@ -16,6 +17,7 @@
     "compile": "node src/cli/gomyaku.mjs compile"
   },
   "exports": {
+    "./core": { "types": "./src/core/index.d.mts", "import": "./src/core/index.mjs" },
     ".": "./src/index.mjs",
     "./compiler/project": "./src/compiler/compileProject.mjs",
     "./model/project-schema": "./src/model/projectSchema.ts",
