@@ -163,7 +163,7 @@ test('detached workflow CLI proves projection, file checking, errors and package
   const root = await directory();
   try {
     for (const folder of ['core','workflow']) await mkdir(join(root,folder));
-    for (const source of ['core/index.mjs','workflow/index.mjs','workflow/files.mjs','workflow/cli.mjs']) {
+    for (const source of ['core/index.mjs','workflow/index.mjs','workflow/files.mjs','workflow/receipts.mjs','workflow/cli.mjs']) {
       await copyFile(new URL(`../src/${source}`, import.meta.url), join(root,source));
     }
     const input = fixture();

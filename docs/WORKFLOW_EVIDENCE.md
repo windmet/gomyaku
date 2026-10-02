@@ -83,13 +83,80 @@ escaping links, malformed paths/identities/times/derivation, input immutability,
 deterministic output, declarations and a detached CLI with only Core and Workflow
 files. No real RAW, ASR, channel inventory or publication corpus is a fixture.
 
+## Existing audio-ASR receipt dialect
+
+`gomyaku/workflow/receipts` exports the pure `projectAudioAsrReceipt(receipt,
+configuration)` adapter. It accepts `schemaVersion:1`,
+`kind:"audio-asr-processing-receipt"` from existing local tooling, not Catalog
+acquisition receipts. No local tool, filesystem, provider or publication import
+is required. It returns a Workflow manifest, not a verification report.
+
+The separate schema-1 configuration requires `sources`, `bindings`, `segments`
+and `paths`. At least one binding must be explicitly selected. Each binding has
+`{slot, id, sourceId, byteCount?, parents?}`. IDs, clocks, segments, ordered paths
+and derivation parents are caller declarations; none is generated or inferred
+from filenames, receipt timestamps, chunk names or media duration. Receipt
+array positions select fields only and never become artifact IDs. Reordering a
+receipt array requires reviewing its corresponding configuration.
+
+| Selected path field (`slot`) | Expected digest | Expected byte count |
+|---|---|---|
+| `/sourceMedia/path` | `sourceMedia.sha256` | `sourceMedia.bytes` |
+| `/m4a/masterPath` | `m4a.sha256` | `m4a.bytes` |
+| `/whisper/deliverySrt` | `whisper.deliverySha256` | Explicit supplement |
+| `/whisper/rawChunkOutputs/N/srt` | Selected entry's `srtSha256` | Explicit supplement |
+| `/m4aChunks/N/path` | Selected entry's `sha256` | Selected entry's `bytes` |
+| `/chat/rawPath`, `/chat/normalizedPath` | `rawSha256`, `normalizedSha256` | Explicit supplement |
+| `/comments/infoPath`, `/comments/normalizedPath` | `infoSha256`, `normalizedSha256` | Explicit supplement |
+
+`N` is a canonical nonnegative decimal array index; unsupported slots, repeated
+slots, absent selected fields, missing hashes/counts, unsafe paths and invalid
+Workflow closure fail. A count supplement may fill an absent receipt count;
+it must not conflict with a count already present (including invalid/null
+values). A binding cannot override the receipt path or hash. Supplements are
+declared expectations supplied by the caller, not observed file sizes or
+verified facts. Independent file checking compares the current bytes with those
+expectations. In particular, the adapter never hashes a changed file to replace
+its previously declared receipt digest.
+
+Only explicitly selected artifacts are projected. Unselected receipt fields may
+be absent; selection proves no full pipeline coverage. Cleanup candidates,
+un-hashed MSST output declarations and Whisper JSON without a declared digest
+are unsupported. Do not invent their expected identities to satisfy a gate.
+Acquire or declare the missing evidence separately before indexing it.
+
+Completion/status, decode results, human-review claims, title, URL, machine
+paths, command lines, transcript, Catalog/Work State/publication scope and any
+other metadata are not copied. Failed/partial receipts may still contain
+selected evidence; selection makes no success claim. A byte audit must be run
+separately and still proves neither decoding nor alignment, subtitle quality or
+publication readiness.
+
+```powershell
+# The fixture contains fictional text, not playable media or real ASR.
+npm run workflow -- receipt --input tests/fixtures/workflow/audio-asr-receipt.json --bindings tests/fixtures/workflow/audio-asr-bindings.json --out receipt-evidence.local.json
+npm run workflow -- verify --input receipt-evidence.local.json --root tests/fixtures/workflow
+```
+
+The `receipt` command requires `--bindings` and rejects `--root`. Output uses
+stdout by default; an explicit `--out` cannot overwrite either JSON input,
+including aliases/hard links. Like `compile`, it has no evidence root: choose
+output outside evidence files. The `.local.json` output is local evidence, not
+publication data. Exit 0 means valid projection only; byte verification has its
+own result and exit status. Detached CLI tests copy only Core and Workflow,
+convert the synthetic receipt, verify its three real fixture files, reject
+input overwrites, and show that changed bytes fail even for a completed receipt.
+
 ## Remaining integration
 
 Acquisition receipts still describe planned artifact coverage and evidence paths;
 their `completed` status is not converted into a verified workflow artifact.
-Legacy Source Set hash/line/arc validation is unchanged. Actual local-tool
-receipts need an explicit adapter that supplies stable identity, declared native
-clock, file digest and byte count; no approval or provenance is silently inferred.
+Legacy Source Set hash/line/arc validation is unchanged. The audio-ASR dialect
+adapter above is independently validated with fictional data. Actual local
+workspaces still need reviewed binding configurations and missing expected byte
+counts before their receipts can be checked; no real workspace or private media
+was used as package acceptance evidence. Other receipt dialects require their
+own explicit mapping; no approval or provenance is silently inferred.
 Media probing and real processing acceptance are separate subsequent gates.
 This release is an executable indexing/evidence slice, not a complete portable
 media-processing pipeline.

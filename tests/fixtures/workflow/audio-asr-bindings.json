@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "sources": [{"id":"clock-a","durationMs":5000},{"id":"clock-b","durationMs":10000}],
+  "bindings": [
+    {"slot":"/sourceMedia/path","id":"original","sourceId":"clock-a"},
+    {"slot":"/m4a/masterPath","id":"derived","sourceId":"clock-a","parents":["original"]},
+    {"slot":"/whisper/deliverySrt","id":"independent","sourceId":"clock-b","byteCount":29}
+  ],
+  "segments": [{"id":"early","artifactId":"derived","startMs":100,"endMs":200},{"id":"late","artifactId":"independent","startMs":7000,"endMs":8000}],
+  "paths": [{"id":"authored","nodeIds":["late","early","late"]}]
+}

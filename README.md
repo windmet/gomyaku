@@ -11,8 +11,10 @@ The independent [`gomyaku/workflow`](docs/WORKFLOW_EVIDENCE.md) adapter now maps
 declared technical artifacts and native-clock segments into Core. The separate
 `gomyaku/workflow/files` export audits actual byte identity under an explicit
 local root, and the offline CLI exercises both paths without Catalog or publication
-approval. Existing local audio/subtitle tooling remains authoritative; adapting
-its real receipts and accepting real processing remain pending. This package
+approval. `gomyaku/workflow/receipts` adapts explicitly selected fields from the
+existing schema-1 audio/ASR receipt dialect; missing byte counts require declared
+supplements. Existing local audio/subtitle tooling remains authoritative;
+real workspace bindings and real processing acceptance remain pending. This package
 does not yet ship a replacement media-processing pipeline.
 
 This is a fresh-history shadow repository. It intentionally contains no real

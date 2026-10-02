@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "kind": "audio-asr-processing-receipt",
+  "status": "completed",
+  "source": {"id":"fictional-recording","title":"Fictional offline receipt","durationSec":99},
+  "sourceMedia": {"path":"original.txt","bytes":29,"sha256":"77f59030b4e3e3ddcf452598cca3fa9d0cc02693faf4e5cc1c044ee3daae0e79","fullDecodeExit":0},
+  "m4a": {"status":"completed","masterPath":"derived.txt","bytes":29,"sha256":"77f59030b4e3e3ddcf452598cca3fa9d0cc02693faf4e5cc1c044ee3daae0e79","durationSec":98,"decodedWithoutError":true},
+  "whisper": {"status":"completed","deliverySrt":"independent.txt","deliverySha256":"77f59030b4e3e3ddcf452598cca3fa9d0cc02693faf4e5cc1c044ee3daae0e79","humanReviewed":false},
+  "cleanup": {"candidates":[{"path":"deleted-temporary.wav","bytes":1,"sha256":"not-an-artifact"}]},
+  "pipeline": {"publication":"out_of_scope","subtitleBurnIn":false}
+}

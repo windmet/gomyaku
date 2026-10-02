@@ -13,8 +13,10 @@ schema/compiler/People APIs and Catalog commands remain compatibility surfaces
 for existing consumers. Do not grow their publication ontology or require their
 approval chain for standalone core or local subtitle work. `gomyaku/workflow`
 projects declared technical evidence into Core; `gomyaku/workflow/files` audits
-local byte identity separately. Real tool receipt integration and media acceptance
-are still pending; do not claim a portable media pipeline has shipped.
+local byte identity separately. `gomyaku/workflow/receipts` supports explicit
+selection from the existing audio-ASR receipt dialect without copying completion
+claims. Real workspace bindings and media acceptance are still pending; do not
+claim a portable media pipeline has shipped.
 
 It is not a publication site and must remain independent of Qianqingtie.
 

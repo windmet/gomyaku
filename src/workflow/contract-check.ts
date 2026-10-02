@@ -1,5 +1,12 @@
 import { compileWorkflowEvidence, validateWorkflowEvidence, type WorkflowEvidence } from 'gomyaku/workflow';
 import { verifyWorkflowFiles, type WorkflowFileReport } from 'gomyaku/workflow/files';
+import { projectAudioAsrReceipt, type AudioAsrReceiptConfiguration } from 'gomyaku/workflow/receipts';
+const bindings:AudioAsrReceiptConfiguration = {schemaVersion:1, sources:[], bindings:[], segments:[], paths:[]};
+const receiptProjection:WorkflowEvidence = projectAudioAsrReceipt({},bindings);
+void receiptProjection;
+// @ts-expect-error Cleanup candidates are not selectable surviving technical artifacts.
+const cleanupBinding:AudioAsrReceiptConfiguration['bindings'][number] = {slot:'/cleanup/candidates/0/path', id:'deleted', sourceId:'s'};
+void cleanupBinding;
 const input:WorkflowEvidence = {schemaVersion:1, sources:[], artifacts:[], segments:[], paths:[]};
 const projected:string[] = compileWorkflowEvidence(input).index.nodes.map(node => node.id);
 const valid:boolean = validateWorkflowEvidence(null).valid;
