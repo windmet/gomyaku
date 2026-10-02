@@ -8,8 +8,10 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "test": "npm run test:core && node scripts/verify-fixtures.mjs && npm run test:catalog",
+    "test": "npm run test:core && npm run test:workflow && node scripts/verify-fixtures.mjs && npm run test:catalog",
     "test:core": "node --test scripts/core.test.mjs",
+    "test:workflow": "node --test scripts/workflow.test.mjs",
+    "workflow": "node src/workflow/cli.mjs",
     "test:catalog": "node scripts/verify-catalog-fixtures.mjs",
     "verify:cli": "node scripts/verify-cli-exit-codes.mjs",
     "verify:package": "node scripts/verify-package-surface.mjs",
@@ -18,6 +20,8 @@
   },
   "exports": {
     "./core": { "types": "./src/core/index.d.mts", "import": "./src/core/index.mjs" },
+    "./workflow": { "types": "./src/workflow/index.d.mts", "import": "./src/workflow/index.mjs" },
+    "./workflow/files": { "types": "./src/workflow/files.d.mts", "import": "./src/workflow/files.mjs" },
     ".": "./src/index.mjs",
     "./compiler/project": "./src/compiler/compileProject.mjs",
     "./model/project-schema": "./src/model/projectSchema.ts",

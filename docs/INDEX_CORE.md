@@ -56,9 +56,11 @@ input, not automatically published facts.
 
 The Project-v1 compiler, schema factories, People projections, source-set and
 Catalog APIs remain compatible while consumers migrate. This change does not
-remove their validators or redirect old imports. The next steps are a thin
-workflow evidence adapter, then a demonstrated consumer integration. A new
-entrypoint alone is not completion of that migration.
+remove their validators or redirect old imports. The [workflow evidence adapter](WORKFLOW_EVIDENCE.md)
+now has pure projection, read-only byte verification and an independently executable
+offline CLI. Publication consumption remains a separate consumer-owned adapter;
+real local tool receipt integration and media acceptance are still pending.
+New entrypoints alone are not completion of that migration.
 
 Tests use synthetic data, validate malformed references and timing, preserve
 authored order, check byte determinism, and copy the standalone module into a

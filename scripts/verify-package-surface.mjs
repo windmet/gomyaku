@@ -30,8 +30,14 @@ import {
   validateArchivePackage,
   verifySourceSet,
 } from '../src/index.mjs';
+import { compileWorkflowEvidence, serializeWorkflowEvidence, validateWorkflowEvidence } from 'gomyaku/workflow';
+import { verifyWorkflowFiles } from 'gomyaku/workflow/files';
 
 for (const [name, value] of Object.entries({
+  compileWorkflowEvidence,
+  serializeWorkflowEvidence,
+  validateWorkflowEvidence,
+  verifyWorkflowFiles,
   compileProject,
   deriveProjectCapabilities,
   validateArchivePackage,

@@ -1,0 +1,2 @@
+# Synthetic byte-identity fixtures must stay identical on Windows and POSIX.
+tests/fixtures/workflow/*.txt text eol=lf

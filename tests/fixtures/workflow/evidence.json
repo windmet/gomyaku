@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "sources": [{"id":"clock-a","durationMs":5000},{"id":"clock-b","durationMs":10000}],
+  "artifacts": [
+    {"id":"original","sourceId":"clock-a","path":"original.txt","sha256":"77f59030b4e3e3ddcf452598cca3fa9d0cc02693faf4e5cc1c044ee3daae0e79","byteCount":29},
+    {"id":"derived","sourceId":"clock-a","path":"derived.txt","sha256":"77f59030b4e3e3ddcf452598cca3fa9d0cc02693faf4e5cc1c044ee3daae0e79","byteCount":29,"parents":["original"]},
+    {"id":"independent","sourceId":"clock-b","path":"independent.txt","sha256":"77f59030b4e3e3ddcf452598cca3fa9d0cc02693faf4e5cc1c044ee3daae0e79","byteCount":29}
+  ],
+  "segments": [{"id":"early","artifactId":"derived","startMs":100,"endMs":200},{"id":"late","artifactId":"independent","startMs":7000,"endMs":8000}],
+  "paths": [{"id":"authored","nodeIds":["late","early","late"]}]
+}

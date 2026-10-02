@@ -7,14 +7,17 @@ references, reverse indexes, source-native time ordering, ordered paths, and
 deterministic serialization. It imports no framework, Catalog, filesystem,
 publication policy, or media tool. `npm run test:core` verifies it independently.
 
-Local media integration is the next axis: technical evidence artifacts will
-connect to the core without requiring publication approval. Existing local
-audio/subtitle tooling remains authoritative; this package does not yet ship a
-replacement media-processing pipeline.
+The independent [`gomyaku/workflow`](docs/WORKFLOW_EVIDENCE.md) adapter now maps
+declared technical artifacts and native-clock segments into Core. The separate
+`gomyaku/workflow/files` export audits actual byte identity under an explicit
+local root, and the offline CLI exercises both paths without Catalog or publication
+approval. Existing local audio/subtitle tooling remains authoritative; adapting
+its real receipts and accepting real processing remain pending. This package
+does not yet ship a replacement media-processing pipeline.
 
 This is a fresh-history shadow repository. It intentionally contains no real
-publication corpus and no Reader application. The first acceptance target is
-independent core validation:
+publication corpus and no Reader application. Core and Workflow acceptance
+are independently executable:
 
 ```text
 npm install

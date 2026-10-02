@@ -11,8 +11,10 @@ boundary, independently of publication.
 `gomyaku/core` is the new standalone core entrypoint. The Project-centric
 schema/compiler/People APIs and Catalog commands remain compatibility surfaces
 for existing consumers. Do not grow their publication ontology or require their
-approval chain for standalone core or local subtitle work. Workflow integration
-is still pending; do not claim a portable media pipeline has shipped.
+approval chain for standalone core or local subtitle work. `gomyaku/workflow`
+projects declared technical evidence into Core; `gomyaku/workflow/files` audits
+local byte identity separately. Real tool receipt integration and media acceptance
+are still pending; do not claim a portable media pipeline has shipped.
 
 It is not a publication site and must remain independent of Qianqingtie.
 
