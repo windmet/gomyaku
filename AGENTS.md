@@ -15,8 +15,9 @@ approval chain for standalone core or local subtitle work. `gomyaku/workflow`
 projects declared technical evidence into Core; `gomyaku/workflow/files` audits
 local byte identity separately. `gomyaku/workflow/receipts` supports explicit
 selection from the existing audio-ASR receipt dialect without copying completion
-claims. Real workspace bindings and media acceptance are still pending; do not
-claim a portable media pipeline has shipped.
+claims. One existing receipt has private local integration/byte/decode evidence;
+continuous tool-produced bindings, media/text alignment and actual processing
+acceptance are still pending. Do not claim a portable media pipeline has shipped.
 
 It is not a publication site and must remain independent of Qianqingtie.
 

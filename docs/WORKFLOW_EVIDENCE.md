@@ -147,16 +147,51 @@ own result and exit status. Detached CLI tests copy only Core and Workflow,
 convert the synthetic receipt, verify its three real fixture files, reject
 input overwrites, and show that changed bytes fail even for a completed receipt.
 
+## Private local integration evidence
+
+A separate local authoring audit has now exercised this release against one
+existing audio-ASR receipt. All real input, bindings, reports, supplemental
+counts and runner snapshots stay outside this repository and publication code;
+they are not package fixtures or public corpus. Generic CI remains synthetic.
+
+The audit independently matched 13 selected files to their historical receipt
+digests, supplied 8 missing counts only after those digest matches, and checked
+the final manifest again after media checks. Original receipt hashes were never
+replaced. Supplemental counts are current hash-matched observations with a
+separate origin record, not recovered historical execution counts. The
+provisional observation report was explicitly invalid until declarations were
+complete, and cannot be used as the final verification result.
+
+Five existing audio files passed fresh probes and full audio decodes. Delivery
+subtitle structure had 1,819 sequential cues with no zero duration or overlap;
+raw subtitles retained two zero-duration cues, reported as timing defects.
+Those existing points remain valid Core observations, not accepted subtitle
+timing. No raw file was repaired. The projection has 13 unanchored artifacts,
+3,638 cue anchors, 4 authored paths and 4 separately anchored native timelines.
+Raw chunk clock bounds were checked against the existing exact-sample manifest;
+no source offsets were applied and no transcript text entered the index.
+
+This proves existing-receipt integration, current byte identity, audio
+decodability and technical indexing for that local case. It does not reproduce
+the original acquisition/MSST/Whisper execution, verify text/audio alignment,
+establish human review, resolve raw timing defects or authorize publication.
+The private assessment records those gates separately, with receipt, runner,
+clock-manifest and compiled-manifest identity. Source Engineering, Catalog and
+Work State remain under their own existing gates.
+
 ## Remaining integration
 
 Acquisition receipts still describe planned artifact coverage and evidence paths;
 their `completed` status is not converted into a verified workflow artifact.
 Legacy Source Set hash/line/arc validation is unchanged. The audio-ASR dialect
 adapter above is independently validated with fictional data. Actual local
-workspaces still need reviewed binding configurations and missing expected byte
-counts before their receipts can be checked; no real workspace or private media
-was used as package acceptance evidence. Other receipt dialects require their
+workspaces need case-specific binding configurations and missing expected byte
+counts before their receipts can be checked; the one private case above is an
+additional local acceptance slice, not a replacement for synthetic package
+tests. Other receipt dialects require their
 own explicit mapping; no approval or provenance is silently inferred.
-Media probing and real processing acceptance are separate subsequent gates.
+Continuous tool-produced bindings and real processing acceptance remain
+subsequent gates. Existing media probing/decoding above is a revalidation gate,
+not evidence of a newly executed processing pipeline.
 This release is an executable indexing/evidence slice, not a complete portable
 media-processing pipeline.

@@ -14,7 +14,9 @@ local root, and the offline CLI exercises both paths without Catalog or publicat
 approval. `gomyaku/workflow/receipts` adapts explicitly selected fields from the
 existing schema-1 audio/ASR receipt dialect; missing byte counts require declared
 supplements. Existing local audio/subtitle tooling remains authoritative;
-real workspace bindings and real processing acceptance remain pending. This package
+one existing real receipt has now been independently revalidated in its private
+local workspace. Continuous tool-produced bindings and real processing
+acceptance remain pending. This package
 does not yet ship a replacement media-processing pipeline.
 
 This is a fresh-history shadow repository. It intentionally contains no real
