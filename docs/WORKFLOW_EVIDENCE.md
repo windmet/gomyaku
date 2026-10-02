@@ -147,6 +147,39 @@ own result and exit status. Detached CLI tests copy only Core and Workflow,
 convert the synthetic receipt, verify its three real fixture files, reject
 input overwrites, and show that changed bytes fail even for a completed receipt.
 
+## Preparing absent counts from existing files
+
+The separate Node-only `gomyaku/workflow/receipt-files` entry exports
+`prepareAudioAsrReceipt(receipt, configuration, {root})`. Unlike the pure
+projection, this permits **absent** counts in explicit bindings. It validates
+all selected paths, historical hashes, IDs, clocks and closure before I/O,
+streams every selected file, checks any existing count, then fills only missing
+counts from hash-matched current observations. It snapshots declarations before
+awaiting I/O and never rewrites the input receipt or configuration.
+
+The result includes `selectionSha256`, `observation`, `verification`,
+`configuration`, `evidence` and `supplements`. Selection identity includes absent
+counts distinctly from a declared zero; it is not the original receipt-file
+hash. Each supplement records `origin:"hash-matched-current-observation"`.
+These counts describe current bytes, not the original processing execution.
+The complete manifest is checked again before returning `status:"prepared"`,
+`valid:true`. Both passes must succeed. A missing/unavailable root, changed
+file, hash/count mismatch or escaped path returns no usable configuration or
+evidence and an empty supplement list. Invalid structural input rejects before
+file access. No partial observations become accepted bindings.
+
+```powershell
+npm run workflow -- receipt-prepare --input receipt.local.json --bindings selection.local.json --root ./private-project --out prepared.local.json
+```
+
+The command requires both `--bindings` and `--root`. It protects both JSON inputs
+and all selected files from `--out`, including aliases/hard links. Exit 0 means
+prepared byte identity only, 1 means invalid input or failed evidence, and 2
+means invalid usage. The existing pure `receipt` command still requires complete
+counts and has unchanged semantics. Probing, full decoding, native subtitle
+quality, alignment, human review, Catalog state and publication remain separate
+gates. Keep real inputs and preparation reports in their private workspace.
+
 ## Private local integration evidence
 
 A separate local authoring audit has now exercised this release against one
@@ -185,8 +218,8 @@ Acquisition receipts still describe planned artifact coverage and evidence paths
 their `completed` status is not converted into a verified workflow artifact.
 Legacy Source Set hash/line/arc validation is unchanged. The audio-ASR dialect
 adapter above is independently validated with fictional data. Actual local
-workspaces need case-specific binding configurations and missing expected byte
-counts before their receipts can be checked; the one private case above is an
+workspaces need case-specific binding configurations; missing counts can now
+be prepared through the explicit read-only API above; the one private case above is an
 additional local acceptance slice, not a replacement for synthetic package
 tests. Other receipt dialects require their
 own explicit mapping; no approval or provenance is silently inferred.

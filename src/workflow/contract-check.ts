@@ -15,3 +15,7 @@ void [projected, valid, result];
 // @ts-expect-error Artifact byte identity is required, rather than an inferred completion status.
 const incomplete:WorkflowEvidence = {schemaVersion:1, sources:[], artifacts:[{id:'a', sourceId:'s', path:'a.txt'}], segments:[], paths:[]};
 void incomplete;
+
+import { prepareAudioAsrReceipt, type ReceiptPreparation } from 'gomyaku/workflow/receipt-files';
+const prepared:Promise<ReceiptPreparation> = prepareAudioAsrReceipt({}, bindings, {root:'fictional-root'});
+void prepared;

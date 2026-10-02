@@ -32,6 +32,7 @@ import {
 } from '../src/index.mjs';
 import { compileWorkflowEvidence, serializeWorkflowEvidence, validateWorkflowEvidence } from 'gomyaku/workflow';
 import { verifyWorkflowFiles } from 'gomyaku/workflow/files';
+import { prepareAudioAsrReceipt } from 'gomyaku/workflow/receipt-files';
 import { projectAudioAsrReceipt } from 'gomyaku/workflow/receipts';
 
 for (const [name, value] of Object.entries({
@@ -40,6 +41,7 @@ for (const [name, value] of Object.entries({
   validateWorkflowEvidence,
   verifyWorkflowFiles,
   projectAudioAsrReceipt,
+  prepareAudioAsrReceipt,
   compileProject,
   deriveProjectCapabilities,
   validateArchivePackage,

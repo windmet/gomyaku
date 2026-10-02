@@ -10,7 +10,7 @@
   "scripts": {
     "test": "npm run test:core && npm run test:workflow && node scripts/verify-fixtures.mjs && npm run test:catalog",
     "test:core": "node --test scripts/core.test.mjs",
-    "test:workflow": "node --test scripts/workflow.test.mjs scripts/workflow-receipts.test.mjs",
+    "test:workflow": "node --test scripts/workflow.test.mjs scripts/workflow-receipts.test.mjs scripts/workflow-receipt-files.test.mjs",
     "workflow": "node src/workflow/cli.mjs",
     "test:catalog": "node scripts/verify-catalog-fixtures.mjs",
     "verify:cli": "node scripts/verify-cli-exit-codes.mjs",
@@ -23,6 +23,7 @@
     "./workflow": { "types": "./src/workflow/index.d.mts", "import": "./src/workflow/index.mjs" },
     "./workflow/files": { "types": "./src/workflow/files.d.mts", "import": "./src/workflow/files.mjs" },
     "./workflow/receipts": { "types": "./src/workflow/receipts.d.mts", "import": "./src/workflow/receipts.mjs" },
+    "./workflow/receipt-files": { "types": "./src/workflow/receipt-files.d.mts", "import": "./src/workflow/receipt-files.mjs" },
     ".": "./src/index.mjs",
     "./compiler/project": "./src/compiler/compileProject.mjs",
     "./model/project-schema": "./src/model/projectSchema.ts",

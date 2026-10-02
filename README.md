@@ -12,10 +12,12 @@ declared technical artifacts and native-clock segments into Core. The separate
 `gomyaku/workflow/files` export audits actual byte identity under an explicit
 local root, and the offline CLI exercises both paths without Catalog or publication
 approval. `gomyaku/workflow/receipts` adapts explicitly selected fields from the
-existing schema-1 audio/ASR receipt dialect; missing byte counts require declared
-supplements. Existing local audio/subtitle tooling remains authoritative;
-one existing real receipt has now been independently revalidated in its private
-local workspace. Continuous tool-produced bindings and real processing
+existing schema-1 audio/ASR receipt dialect; the pure projection requires declared
+supplements. Existing local audio/subtitle tooling remains authoritative.
+The separate Node-only `gomyaku/workflow/receipt-files` preparation API can
+fill absent counts only after matching historical hashes, with a second complete
+byte audit and no partial promotion. One existing real receipt has been
+independently revalidated in its private local workspace. Continuous tool-produced bindings and real processing
 acceptance remain pending. This package
 does not yet ship a replacement media-processing pipeline.
 

@@ -137,7 +137,7 @@ test('detached CLI converts explicit bindings, verifies bytes and protects both 
   const root = await mkdtemp(join(tmpdir(),'gomyaku-receipt-'));
   try {
     for (const folder of ['core','workflow']) await mkdir(join(root,folder));
-    for (const source of ['core/index.mjs','workflow/index.mjs','workflow/files.mjs','workflow/receipts.mjs','workflow/cli.mjs']) {
+    for (const source of ['core/index.mjs','workflow/index.mjs','workflow/files.mjs','workflow/file-audit.mjs','workflow/receipt-selection.mjs','workflow/receipt-files.mjs','workflow/receipts.mjs','workflow/cli.mjs']) {
       await copyFile(new URL(`../src/${source}`,import.meta.url),join(root,source));
     }
     const {receipt,configuration} = await fixture();
